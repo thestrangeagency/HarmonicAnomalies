@@ -91,6 +91,8 @@ struct HexNut : Module
         LIGHTS_LEN
     };
 
+    Hex hex;
+
     HexNut()
     {
         config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
@@ -110,9 +112,9 @@ struct HexNut : Module
 struct HexDisplay : LedDisplay
 {
     HexNut *module;
+    Hex *hex;
     ModuleWidget *moduleWidget;
     std::string fontPath;
-    Hex hex;
 
     HexDisplay()
     {
@@ -133,24 +135,24 @@ struct HexDisplay : LedDisplay
         }
 
         nvgClosePath(vg);
-        nvgFillColor(vg, nvgRGBA(255, 0, 0, 255)); // Assuming red color
+        nvgFillColor(vg, nvgRGBA(0, 255, 0, 255));
         nvgFill(vg);
     }
 
     void drawBackground(const DrawArgs &args)
     {
-        float cx = this->hex.width / 2;
-        float cy = this->hex.dy;
-        for (int i = 1 - this->hex.radius; i < this->hex.radius; i++)
+        float cx = this->hex->width / 2;
+        float cy = this->hex->dy;
+        for (int i = 1 - this->hex->radius; i < this->hex->radius; i++)
         {
             int j = std::abs(i);
-            float x = cx + i * this->hex.dx;
-            float y = cy + j * this->hex.dy / 2;
-            int k = this->hex.diameter - j - 1;
+            float x = cx + i * this->hex->dx;
+            float y = cy + j * this->hex->dy / 2;
+            int k = this->hex->diameter - j - 1;
 
             for (int i = 0; i < k; i++)
             {
-                hexagon(args.vg, x, y + i * this->hex.dy, this->hex.size);
+                hexagon(args.vg, x, y + i * this->hex->dy, this->hex->size);
             }
         }
     }
@@ -190,6 +192,7 @@ struct HexNutWidget : ModuleWidget
         HexDisplay *display = createWidget<HexDisplay>(mm2px(Vec(0.0, 13.039)));
         display->box.size = mm2px(Vec(66.04, 55.88));
         display->module = module;
+        display->hex = &module->hex;
         display->moduleWidget = this;
         addChild(display);
     }
