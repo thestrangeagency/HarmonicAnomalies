@@ -133,6 +133,7 @@ struct HexNut : Module
 struct HexDisplay : LedDisplay
 {
     HexNut *module;
+    Hex *hex;
     ModuleWidget *moduleWidget;
     std::string fontPath;
 
@@ -159,27 +160,33 @@ struct HexDisplay : LedDisplay
         nvgFill(vg);
     }
 
+    NVGcolor colorFromVoltage(float v)
+    {
+        float v_norm = abs(v) / 5.0;
+        int l = 255 * v_norm;
+        return nvgRGBA(l, l, l, 255);
+    }
+
+    void drawTile(const DrawArgs &args, Tile tile)
+    {
+        hexagon(args.vg, tile.x, tile.y, hex->size, colorFromVoltage(tile.v));
+    }
+
     void drawTiles(const DrawArgs &args)
     {
-        Hex *hex = &module->hex;
         for (int i = 0; i < hex->length; i++)
         {
             Tile tile = hex->tiles[i];
-            NVGcolor color = nvgRGBA(255 * abs(tile.v) / 10.0, 255, 0, 255);
-            hexagon(args.vg, tile.x, tile.y, hex->size, color);
+            drawTile(args, tile);
         }
     }
 
     void drawCursor(const DrawArgs &args)
     {
-        Hex *hex = &module->hex;
-
         int cursor = hex->cursor;
         Tile tile = hex->tiles[cursor];
-
-        NVGcolor color = nvgRGBA(255 * abs(tile.v) / 10.0, 0, 0, 255);
-
-        hexagon(args.vg, tile.x, tile.y, hex->size, color);
+        hexagon(args.vg, tile.x, tile.y, hex->size * 2, nvgRGBA(255, 0, 0, 255));
+        drawTile(args, tile);
     }
 
     void drawLayer(const DrawArgs &args, int layer) override
@@ -218,6 +225,7 @@ struct HexNutWidget : ModuleWidget
         HexDisplay *display = createWidget<HexDisplay>(mm2px(Vec(0.0, 13.039)));
         display->box.size = mm2px(Vec(66.04, 55.88));
         display->module = module;
+        display->hex = &module->hex;
         display->moduleWidget = this;
         addChild(display);
     }
