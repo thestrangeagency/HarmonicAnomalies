@@ -182,6 +182,17 @@ struct HexDisplay : LedDisplay
         }
     }
 
+    void drawTiles(const DrawArgs &args)
+    {
+        Hex *hex = &module->hex;
+        for (int i = 0; i < hex->length; i++)
+        {
+            Tile tile = hex->tiles[i];
+            NVGcolor color = nvgRGBA(255 * abs(tile.v) / 10.0, 255, 0, 255);
+            hexagon(args.vg, tile.x, tile.y, hex->size, color);
+        }
+    }
+
     void drawCursor(const DrawArgs &args)
     {
         Hex *hex = &module->hex;
@@ -189,7 +200,7 @@ struct HexDisplay : LedDisplay
         int cursor = hex->cursor;
         Tile tile = hex->tiles[cursor];
 
-        NVGcolor color = nvgRGBA(255 * abs(tile.v) / 10.0, 255, 0, 255);
+        NVGcolor color = nvgRGBA(255 * abs(tile.v) / 10.0, 0, 0, 255);
 
         hexagon(args.vg, tile.x, tile.y, hex->size, color);
     }
@@ -198,7 +209,8 @@ struct HexDisplay : LedDisplay
     {
         if (module && layer == 1)
         {
-            drawBackground(args);
+            // drawBackground(args);
+            drawTiles(args);
             drawCursor(args);
         }
 
