@@ -12,5 +12,14 @@
   "sourceUrl": "",
   "donateUrl": "",
   "changelogUrl": "",
-  "modules": []
+  "modules": [
+    {
+      "slug": "HexNut",
+      "name": "HexNut",
+      "description": "",
+      "tags": [
+        "Sampler"
+      ]
+    }
+  ]
 }
