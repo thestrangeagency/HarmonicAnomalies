@@ -133,7 +133,6 @@ struct HexNut : Module
 struct HexDisplay : LedDisplay
 {
     HexNut *module;
-    Hex *hex;
     ModuleWidget *moduleWidget;
     std::string fontPath;
 
@@ -162,41 +161,45 @@ struct HexDisplay : LedDisplay
 
     void drawBackground(const DrawArgs &args)
     {
-        float cx = this->hex->width / 2;
-        float cy = this->hex->dy;
+        Hex *hex = &module->hex;
+
+        float cx = hex->width / 2;
+        float cy = hex->dy;
 
         NVGcolor bg_color = nvgRGBA(0, 255, 0, 255);
 
-        for (int i = 1 - this->hex->radius; i < this->hex->radius; i++)
+        for (int i = 1 - hex->radius; i < hex->radius; i++)
         {
             int j = std::abs(i);
-            float x = cx + i * this->hex->dx;
-            float y = cy + j * this->hex->dy / 2;
-            int k = this->hex->diameter - j - 1;
+            float x = cx + i * hex->dx;
+            float y = cy + j * hex->dy / 2;
+            int k = hex->diameter - j - 1;
 
             for (int i = 0; i < k; i++)
             {
-                hexagon(args.vg, x, y + i * this->hex->dy, this->hex->size, bg_color);
+                hexagon(args.vg, x, y + i * hex->dy, hex->size, bg_color);
             }
         }
     }
 
     void drawCursor(const DrawArgs &args)
     {
-        int cursor = this->hex->cursor;
-        Tile tile = this->hex->tiles[cursor];
+        Hex *hex = &module->hex;
+
+        int cursor = hex->cursor;
+        Tile tile = hex->tiles[cursor];
 
         NVGcolor color = nvgRGBA(255 * abs(tile.v) / 10.0, 255, 0, 255);
 
-        hexagon(args.vg, tile.x, tile.y, this->hex->size, color);
+        hexagon(args.vg, tile.x, tile.y, hex->size, color);
     }
 
     void drawLayer(const DrawArgs &args, int layer) override
     {
-        if (layer == 1)
+        if (module && layer == 1)
         {
             drawBackground(args);
-            // drawCursor(args);
+            drawCursor(args);
         }
 
         Widget::drawLayer(args, layer);
@@ -227,7 +230,6 @@ struct HexNutWidget : ModuleWidget
         HexDisplay *display = createWidget<HexDisplay>(mm2px(Vec(0.0, 13.039)));
         display->box.size = mm2px(Vec(66.04, 55.88));
         display->module = module;
-        display->hex = &module->hex;
         display->moduleWidget = this;
         addChild(display);
     }
