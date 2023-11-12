@@ -50,8 +50,8 @@ struct Hex
 
     void advanceWriteCursor(int x, int y, int z)
     {
-        float y_step = yAxis;
-        float z_step = y + 1;
+        int y_step = yAxis;
+        int z_step = y + 1;
 
         writeCursor += x + y * y_step + z * z_step;
         writeCursor = clamp(writeCursor);
@@ -59,8 +59,8 @@ struct Hex
 
     void advanceReadCursor(int x, int y, int z)
     {
-        float y_step = yAxis;
-        float z_step = y + 1;
+        int y_step = yAxis;
+        int z_step = y + 1;
 
         readCursor += x + y * y_step + z * z_step;
         readCursor = clamp(readCursor);
