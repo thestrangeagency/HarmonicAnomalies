@@ -159,29 +159,6 @@ struct HexDisplay : LedDisplay
         nvgFill(vg);
     }
 
-    void drawBackground(const DrawArgs &args)
-    {
-        Hex *hex = &module->hex;
-
-        float cx = hex->width / 2;
-        float cy = hex->dy;
-
-        NVGcolor bg_color = nvgRGBA(0, 255, 0, 255);
-
-        for (int i = 1 - hex->radius; i < hex->radius; i++)
-        {
-            int j = std::abs(i);
-            float x = cx + i * hex->dx;
-            float y = cy + j * hex->dy / 2;
-            int k = hex->diameter - j - 1;
-
-            for (int i = 0; i < k; i++)
-            {
-                hexagon(args.vg, x, y + i * hex->dy, hex->size, bg_color);
-            }
-        }
-    }
-
     void drawTiles(const DrawArgs &args)
     {
         Hex *hex = &module->hex;
@@ -209,7 +186,6 @@ struct HexDisplay : LedDisplay
     {
         if (module && layer == 1)
         {
-            // drawBackground(args);
             drawTiles(args);
             drawCursor(args);
         }
