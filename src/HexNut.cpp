@@ -19,17 +19,18 @@ struct Hex
 
     const int radius = 86;
     const int diameter = radius * 2;
-    int ring_radius = radius - 2;
+    int ringRadius = radius - 2;
 
     const float width = diameter * dx;
     const float height = diameter * dy;
 
-    const int y_axis = 3 * radius - 2;
+    const int yAxis = 3 * radius - 2;
     const int length = pow(radius, 3) - pow(radius - 1, 3); // 21931 if radius = 86
 
     std::vector<Tile> tiles;
 
-    int cursor = 0;
+    int writeCursor = 0;
+    int readCursor = 0;
 
     Hex()
     {
@@ -39,10 +40,10 @@ struct Hex
 
     void setVoltage(float v)
     {
-        tiles[cursor].v = v;
+        tiles[writeCursor].v = v;
 
-        // TODO advance cursor elsewhere
-        cursor = clamp(cursor + 1);
+        // TODO advance writeCursor elsewhere
+        writeCursor = clamp(writeCursor + 1);
     }
 
 private:
@@ -80,8 +81,8 @@ private:
 
     std::array<int, 3> getCoords(int x, int y, int z)
     {
-        return x < 0 ? getCoords(x + y_axis + 1, y, z + 1) : x < radius ? std::array<int, 3>{x, y, z}
-                                                                        : getCoords(x - y_axis, y + 1, z);
+        return x < 0 ? getCoords(x + yAxis + 1, y, z + 1) : x < radius ? std::array<int, 3>{x, y, z}
+                                                                       : getCoords(x - yAxis, y + 1, z);
     }
 };
 
@@ -162,8 +163,8 @@ struct HexDisplay : LedDisplay
 
     NVGcolor colorFromVoltage(float v)
     {
-        float v_norm = abs(v) / 5.0;
-        int l = 255 * v_norm;
+        float vNorm = abs(v) / 5.0;
+        int l = 255 * vNorm;
         return nvgRGBA(l, l, l, 255);
     }
 
@@ -181,10 +182,10 @@ struct HexDisplay : LedDisplay
         }
     }
 
-    void drawCursor(const DrawArgs &args)
+    void drawWriteCursor(const DrawArgs &args)
     {
-        int cursor = hex->cursor;
-        Tile tile = hex->tiles[cursor];
+        int writeCursor = hex->writeCursor;
+        Tile tile = hex->tiles[writeCursor];
         hexagon(args.vg, tile.x, tile.y, hex->size * 2, nvgRGBA(255, 0, 0, 255));
         drawTile(args, tile);
     }
@@ -194,7 +195,7 @@ struct HexDisplay : LedDisplay
         if (module && layer == 1)
         {
             drawTiles(args);
-            drawCursor(args);
+            drawWriteCursor(args);
         }
 
         Widget::drawLayer(args, layer);
