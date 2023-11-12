@@ -41,9 +41,15 @@ struct Hex
     void setVoltage(float v)
     {
         tiles[writeCursor].v = v;
+    }
 
-        // TODO advance writeCursor elsewhere
-        writeCursor = clamp(writeCursor + 1);
+    void advanceWriteCurser(int x, int y, int z)
+    {
+        float y_step = yAxis;
+        float z_step = y + 1;
+
+        writeCursor += x + y * y_step + z * z_step;
+        writeCursor = clamp(writeCursor);
     }
 
 private:
@@ -112,22 +118,32 @@ struct HexNut : Module
     };
 
     Hex hex;
+    float writeX;
+    float writeY;
+    float writeZ;
 
     HexNut()
     {
         config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-        configParam(VX_PARAM, 0.f, 1.f, 0.f, "");
-        configParam(VY_PARAM, 0.f, 1.f, 0.f, "");
-        configParam(VZ_PARAM, 0.f, 1.f, 0.f, "");
-        configInput(RESET_INPUT, "");
-        configInput(INPUT_INPUT, "");
-        configOutput(OUTPUT_OUTPUT, "");
+        configParam(VX_PARAM, 0.f, 1.f, 1.f, "write x");
+        configParam(VY_PARAM, 0.f, 1.f, 0.f, "write y");
+        configParam(VZ_PARAM, 0.f, 1.f, 0.f, "write z");
+        configInput(RESET_INPUT, "reset");
+        configInput(INPUT_INPUT, "input");
+        configOutput(OUTPUT_OUTPUT, "output");
     }
 
     void process(const ProcessArgs &args) override
     {
         float in_v = inputs[INPUT_INPUT].getVoltage();
         hex.setVoltage(in_v);
+
+        writeX += params[VX_PARAM].getValue();
+        if (writeX >= 1)
+        {
+            writeX -= 1;
+            hex.advanceWriteCurser(1, 0, 0);
+        }
     }
 };
 
