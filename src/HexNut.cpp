@@ -139,13 +139,21 @@ struct HexNut : Module
     HexNut()
     {
         config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-        configParam(VX_PARAM, 0.f, 1.f, 1.f, "write x");
+        configParam(VX_PARAM, 0.f, 1.f, 0.f, "write x");
         configParam(VY_PARAM, 0.f, 1.f, 0.f, "write y");
         configParam(VZ_PARAM, 0.f, 1.f, 0.f, "write z");
         configInput(RESET_INPUT, "reset");
         configInput(INPUT_INPUT, "input");
         configOutput(OUTPUT_OUTPUT, "output");
+
+        writeX = 0;
+        writeY = 0;
+        writeZ = 0;
     }
+
+    /* ==================================================================== */
+    /* ==================================================================== */
+    /* ==================================================================== */
 
     void process(const ProcessArgs &args) override
     {
@@ -157,6 +165,20 @@ struct HexNut : Module
         {
             writeX -= 1;
             hex.advanceWriteCursor(1, 0, 0);
+        }
+
+        writeY += params[VY_PARAM].getValue();
+        if (writeY >= 1)
+        {
+            writeY -= 1;
+            hex.advanceWriteCursor(0, 1, 0);
+        }
+
+        writeZ += params[VZ_PARAM].getValue();
+        if (writeZ >= 1)
+        {
+            writeZ -= 1;
+            hex.advanceWriteCursor(0, 0, 1);
         }
 
         hex.advanceReadCursor(1, 0, 0);
