@@ -32,6 +32,9 @@ struct Hex
     int writeCursor = 0;
     int readCursor = 0;
 
+    float writeCursorF = 0;
+    float readCursorF = 0;
+
     Hex()
     {
         tiles.resize(length);
@@ -48,31 +51,40 @@ struct Hex
         return tiles[readCursor].v;
     }
 
-    void advanceWriteCursor(int x, int y, int z)
+    void advanceWriteCursor(float x, float y, float z)
     {
         int y_step = yAxis;
         int z_step = y + 1;
 
-        writeCursor += x + y * y_step + z * z_step;
-        writeCursor = clamp(writeCursor);
+        writeCursorF += x + y * y_step + z * z_step;
+        writeCursorF = clampF(writeCursorF);
+        writeCursor = clamp(round(writeCursorF));
     }
 
-    void advanceReadCursor(int x, int y, int z)
+    void advanceReadCursor(float x, float y, float z)
     {
         int y_step = yAxis;
         int z_step = y + 1;
 
-        readCursor += x + y * y_step + z * z_step;
-        readCursor = clamp(readCursor);
+        readCursorF += x + y * y_step + z * z_step;
+        readCursorF = clampF(readCursorF);
+        readCursor = clamp(round(readCursorF));
     }
 
 private:
     int clamp(int x)
     {
-        if (x < 0)
+        while (x < 0)
             x += length;
-        else
-            x %= length;
+        x %= length;
+        return x;
+    }
+
+    int clampF(float x)
+    {
+        while (x < 0)
+            x += length;
+        x = fmod(x, length);
         return x;
     }
 
@@ -141,13 +153,13 @@ struct HexNut : Module
 
     Hex hex;
 
-    float writeX;
-    float writeY;
-    float writeZ;
+    float writeX = 0;
+    float writeY = 0;
+    float writeZ = 0;
 
-    float readX;
-    float readY;
-    float readZ;
+    float readX = 0;
+    float readY = 0;
+    float readZ = 0;
 
     HexNut()
     {
@@ -171,14 +183,6 @@ struct HexNut : Module
 
         configInput(INPUT_INPUT, "signal");
         configOutput(OUTPUT_OUTPUT, "signal");
-
-        writeX = 0;
-        writeY = 0;
-        writeZ = 0;
-
-        readX = 0;
-        readY = 0;
-        readZ = 0;
     }
 
     /* ==================================================================== */
@@ -192,57 +196,19 @@ struct HexNut : Module
 
         outputs[OUTPUT_OUTPUT].setVoltage(hex.getVoltage());
 
-        // write cursor
+        float scale = 10.0;
 
-        writeX += params[VWX_PARAM].getValue();
-        writeX += inputs[CV_VWX_INPUT].getVoltage() / 100.0;
-        if (writeX >= 1)
-        {
-            writeX -= 1;
-            hex.advanceWriteCursor(1, 0, 0);
-        }
+        float wx = params[VWX_PARAM].getValue() + inputs[CV_VWX_INPUT].getVoltage() / scale;
+        float wy = params[VWY_PARAM].getValue() + inputs[CV_VWY_INPUT].getVoltage() / scale;
+        float wz = params[VWZ_PARAM].getValue() + inputs[CV_VWZ_INPUT].getVoltage() / scale;
 
-        writeY += params[VWY_PARAM].getValue();
-        writeY += inputs[CV_VWY_INPUT].getVoltage() / 100.0;
-        if (writeY >= 1)
-        {
-            writeY -= 1;
-            hex.advanceWriteCursor(0, 1, 0);
-        }
+        hex.advanceWriteCursor(wx, wy, wz);
 
-        writeZ += params[VWZ_PARAM].getValue();
-        writeZ += inputs[CV_VWZ_INPUT].getVoltage() / 100.0;
-        if (writeZ >= 1)
-        {
-            writeZ -= 1;
-            hex.advanceWriteCursor(0, 0, 1);
-        }
+        float rx = params[VRX_PARAM].getValue() + inputs[CV_VRX_INPUT].getVoltage() / scale;
+        float ry = params[VRY_PARAM].getValue() + inputs[CV_VRY_INPUT].getVoltage() / scale;
+        float rz = params[VRZ_PARAM].getValue() + inputs[CV_VRZ_INPUT].getVoltage() / scale;
 
-        // read cursor
-
-        readX += params[VRX_PARAM].getValue();
-        readX += inputs[CV_VRX_INPUT].getVoltage() / 100.0;
-        if (readX >= 1)
-        {
-            readX -= 1;
-            hex.advanceReadCursor(1, 0, 0);
-        }
-
-        readY += params[VRY_PARAM].getValue();
-        readY += inputs[CV_VRY_INPUT].getVoltage() / 100.0;
-        if (readY >= 1)
-        {
-            readY -= 1;
-            hex.advanceReadCursor(0, 1, 0);
-        }
-
-        readZ += params[VRZ_PARAM].getValue();
-        readZ += inputs[CV_VRZ_INPUT].getVoltage() / 100.0;
-        if (readZ >= 1)
-        {
-            readZ -= 1;
-            hex.advanceReadCursor(0, 0, 1);
-        }
+        hex.advanceReadCursor(rx, ry, rz);
     }
 };
 
