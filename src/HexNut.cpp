@@ -8,6 +8,7 @@ struct Tile
 {
     float x;
     float y;
+    float v;
 };
 
 struct Hex
@@ -36,7 +37,24 @@ struct Hex
         initTiles();
     }
 
+    void setVoltage(float v)
+    {
+        tiles[cursor].v = v;
+
+        // TODO advance cursor elsewhere
+        cursor = clamp(cursor + 1);
+    }
+
 private:
+    int clamp(int x)
+    {
+        if (x < 0)
+            x += length;
+        else
+            x %= length;
+        return x;
+    }
+
     void initTiles()
     {
         for (int i = 0; i < length; ++i)
@@ -44,6 +62,7 @@ private:
             std::array<float, 2> c = coordAt(i);
             tiles[i].x = c[0];
             tiles[i].y = c[1];
+            tiles[i].v = 0;
         }
     }
 
@@ -106,6 +125,8 @@ struct HexNut : Module
 
     void process(const ProcessArgs &args) override
     {
+        float in_v = inputs[INPUT_INPUT].getVoltage();
+        hex.setVoltage(in_v);
     }
 };
 
@@ -123,7 +144,7 @@ struct HexDisplay : LedDisplay
         // demoPointBufferInit();
     }
 
-    void hexagon(NVGcontext *vg, float x, float y, float size)
+    void hexagon(NVGcontext *vg, float x, float y, float size, NVGcolor color)
     {
         nvgBeginPath(vg);
         nvgMoveTo(vg, x + size, y);
@@ -135,7 +156,7 @@ struct HexDisplay : LedDisplay
         }
 
         nvgClosePath(vg);
-        nvgFillColor(vg, nvgRGBA(0, 255, 0, 255));
+        nvgFillColor(vg, color);
         nvgFill(vg);
     }
 
@@ -143,6 +164,9 @@ struct HexDisplay : LedDisplay
     {
         float cx = this->hex->width / 2;
         float cy = this->hex->dy;
+
+        NVGcolor bg_color = nvgRGBA(0, 255, 0, 255);
+
         for (int i = 1 - this->hex->radius; i < this->hex->radius; i++)
         {
             int j = std::abs(i);
@@ -152,9 +176,19 @@ struct HexDisplay : LedDisplay
 
             for (int i = 0; i < k; i++)
             {
-                hexagon(args.vg, x, y + i * this->hex->dy, this->hex->size);
+                hexagon(args.vg, x, y + i * this->hex->dy, this->hex->size, bg_color);
             }
         }
+    }
+
+    void drawCursor(const DrawArgs &args)
+    {
+        int cursor = this->hex->cursor;
+        Tile tile = this->hex->tiles[cursor];
+
+        NVGcolor color = nvgRGBA(255 * abs(tile.v) / 10.0, 255, 0, 255);
+
+        hexagon(args.vg, tile.x, tile.y, this->hex->size, color);
     }
 
     void drawLayer(const DrawArgs &args, int layer) override
@@ -162,8 +196,9 @@ struct HexDisplay : LedDisplay
         if (layer == 1)
         {
             drawBackground(args);
+            // drawCursor(args);
         }
-        // Remember to call the superclass's method.
+
         Widget::drawLayer(args, layer);
     }
 };
