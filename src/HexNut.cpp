@@ -12,11 +12,11 @@ struct Tile
 
 struct Hex
 {
-    const float size = 2;
+    const float size = .5;
     const float dx = size * 3 / 2;
     const float dy = size * sqrt(3);
 
-    const int radius = 8;
+    const int radius = 86;
     const int diameter = radius * 2;
     int ring_radius = radius - 2;
 
@@ -24,7 +24,7 @@ struct Hex
     const float height = diameter * dy;
 
     const int y_axis = 3 * radius - 2;
-    const int length = pow(radius, 3) - pow(radius - 1, 3);
+    const int length = pow(radius, 3) - pow(radius - 1, 3); // 21931 if radius = 86
 
     std::vector<Tile> tiles;
 
