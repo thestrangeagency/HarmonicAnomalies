@@ -43,13 +43,27 @@ struct Hex
         tiles[writeCursor].v = v;
     }
 
-    void advanceWriteCurser(int x, int y, int z)
+    float getVoltage()
+    {
+        return tiles[readCursor].v;
+    }
+
+    void advanceWriteCursor(int x, int y, int z)
     {
         float y_step = yAxis;
         float z_step = y + 1;
 
         writeCursor += x + y * y_step + z * z_step;
         writeCursor = clamp(writeCursor);
+    }
+
+    void advanceReadCursor(int x, int y, int z)
+    {
+        float y_step = yAxis;
+        float z_step = y + 1;
+
+        readCursor += x + y * y_step + z * z_step;
+        readCursor = clamp(readCursor);
     }
 
 private:
@@ -142,8 +156,12 @@ struct HexNut : Module
         if (writeX >= 1)
         {
             writeX -= 1;
-            hex.advanceWriteCurser(1, 0, 0);
+            hex.advanceWriteCursor(1, 0, 0);
         }
+
+        hex.advanceReadCursor(1, 0, 0);
+
+        outputs[OUTPUT_OUTPUT].setVoltage(hex.getVoltage());
     }
 };
 
