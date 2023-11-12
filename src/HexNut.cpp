@@ -110,9 +110,12 @@ struct HexNut : Module
 {
     enum ParamId
     {
-        VX_PARAM,
-        VY_PARAM,
-        VZ_PARAM,
+        VWX_PARAM,
+        VWY_PARAM,
+        VWZ_PARAM,
+        VRX_PARAM,
+        VRY_PARAM,
+        VRZ_PARAM,
         PARAMS_LEN
     };
     enum InputId
@@ -132,16 +135,27 @@ struct HexNut : Module
     };
 
     Hex hex;
+
     float writeX;
     float writeY;
     float writeZ;
 
+    float readX;
+    float readY;
+    float readZ;
+
     HexNut()
     {
         config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-        configParam(VX_PARAM, 0.f, 1.f, 0.f, "write x");
-        configParam(VY_PARAM, 0.f, 1.f, 0.f, "write y");
-        configParam(VZ_PARAM, 0.f, 1.f, 0.f, "write z");
+
+        configParam(VWX_PARAM, 0.f, 1.f, 0.f, "write x");
+        configParam(VWY_PARAM, 0.f, 1.f, 0.f, "write y");
+        configParam(VWZ_PARAM, 0.f, 1.f, 0.f, "write z");
+
+        configParam(VRX_PARAM, 0.f, 1.f, 1.f, "read x");
+        configParam(VRY_PARAM, 0.f, 1.f, 0.f, "read y");
+        configParam(VRZ_PARAM, 0.f, 1.f, 0.f, "read z");
+
         configInput(RESET_INPUT, "reset");
         configInput(INPUT_INPUT, "input");
         configOutput(OUTPUT_OUTPUT, "output");
@@ -149,6 +163,10 @@ struct HexNut : Module
         writeX = 0;
         writeY = 0;
         writeZ = 0;
+
+        readX = 0;
+        readY = 0;
+        readZ = 0;
     }
 
     /* ==================================================================== */
@@ -160,30 +178,53 @@ struct HexNut : Module
         float in_v = inputs[INPUT_INPUT].getVoltage();
         hex.setVoltage(in_v);
 
-        writeX += params[VX_PARAM].getValue();
+        outputs[OUTPUT_OUTPUT].setVoltage(hex.getVoltage());
+
+        // write cursor
+
+        writeX += params[VWX_PARAM].getValue();
         if (writeX >= 1)
         {
             writeX -= 1;
             hex.advanceWriteCursor(1, 0, 0);
         }
 
-        writeY += params[VY_PARAM].getValue();
+        writeY += params[VWY_PARAM].getValue();
         if (writeY >= 1)
         {
             writeY -= 1;
             hex.advanceWriteCursor(0, 1, 0);
         }
 
-        writeZ += params[VZ_PARAM].getValue();
+        writeZ += params[VWZ_PARAM].getValue();
         if (writeZ >= 1)
         {
             writeZ -= 1;
             hex.advanceWriteCursor(0, 0, 1);
         }
 
-        hex.advanceReadCursor(1, 0, 0);
+        // read cursor
 
-        outputs[OUTPUT_OUTPUT].setVoltage(hex.getVoltage());
+        readX += params[VRX_PARAM].getValue();
+        if (readX >= 1)
+        {
+            readX -= 1;
+            hex.advanceReadCursor(1, 0, 0);
+        }
+
+        readY += params[VRY_PARAM].getValue();
+        if (readY >= 1)
+        {
+            readY -= 1;
+            hex.advanceReadCursor(0, 1, 0);
+        }
+
+        readZ += params[VRZ_PARAM].getValue();
+        if (readZ >= 1)
+        {
+            readZ -= 1;
+            hex.advanceReadCursor(0, 0, 1);
+        }
     }
 };
 
@@ -246,12 +287,21 @@ struct HexDisplay : LedDisplay
         drawTile(args, tile);
     }
 
+    void drawReadCursor(const DrawArgs &args)
+    {
+        int readCursor = hex->readCursor;
+        Tile tile = hex->tiles[readCursor];
+        hexagon(args.vg, tile.x, tile.y, hex->size * 2, nvgRGBA(0, 255, 0, 255));
+        drawTile(args, tile);
+    }
+
     void drawLayer(const DrawArgs &args, int layer) override
     {
         if (module && layer == 1)
         {
             drawTiles(args);
             drawWriteCursor(args);
+            drawReadCursor(args);
         }
 
         Widget::drawLayer(args, layer);
@@ -270,9 +320,13 @@ struct HexNutWidget : ModuleWidget
         addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(10, 80)), module, HexNut::VX_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(10, 90)), module, HexNut::VY_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(10, 100)), module, HexNut::VZ_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(10, 80)), module, HexNut::VWX_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(10, 90)), module, HexNut::VWY_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(10, 100)), module, HexNut::VWZ_PARAM));
+
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 80)), module, HexNut::VRX_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 90)), module, HexNut::VRY_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 100)), module, HexNut::VRZ_PARAM));
 
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(20, 80)), module, HexNut::RESET_INPUT));
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(20, 90)), module, HexNut::INPUT_INPUT));
