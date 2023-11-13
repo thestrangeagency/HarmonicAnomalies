@@ -19,7 +19,6 @@ struct Hex
 
     const int radius = 86;
     const int diameter = radius * 2;
-    int ringRadius = radius - 2;
 
     const float width = diameter * dx;
     const float height = diameter * dy;
@@ -43,9 +42,15 @@ struct Hex
     int y_step = yAxis;
     int z_step = y_step + 1;
 
+    int ringRadius = 0;
+    int maxRingRadius = 10;
+    std::vector<int> ringDirs = {-1, -z_step, -y_step, 1, z_step, y_step}; // directions around a ring
+    std::vector<Tile> ringTiles;
+
     Hex()
     {
         tiles.resize(length);
+        ringTiles.resize(maxRingRadius * 6);
         initTiles();
     }
 
@@ -57,6 +62,31 @@ struct Hex
     float getVoltage()
     {
         return tiles[readCursor].v;
+    }
+
+    float getRingVoltage()
+    {
+        return tiles[readCursor].v; // TODO
+    }
+
+    Tile getTile(int i)
+    {
+        return tiles[clamp(i)];
+    }
+
+    void updateReadRingTiles()
+    {
+        ringTiles.clear();
+        int t = readCursor + z_step * ringRadius;
+
+        for (const auto &dir : ringDirs)
+        {
+            for (int i = 0; i < ringRadius; i++)
+            {
+                t = t + dir;
+                ringTiles.push_back(getTile(t));
+            }
+        }
     }
 
     void advanceWriteCursor(float x, float y, float z)
@@ -137,6 +167,7 @@ struct HexNut : Module
         VRY_PARAM,
         VRZ_PARAM,
         BLEND_PARAM,
+        READ_RING_PARAM,
         PARAMS_LEN
     };
     enum InputId
@@ -161,6 +192,7 @@ struct HexNut : Module
     };
 
     Hex hex;
+    float lastReadRingRadius = 0;
 
     HexNut()
     {
@@ -175,6 +207,7 @@ struct HexNut : Module
         configParam(VRZ_PARAM, -1.f, 1.f, 0.f, "read z");
 
         configParam(BLEND_PARAM, 0.f, 1.f, 1.f, "blend");
+        configParam(READ_RING_PARAM, 0.f, hex.maxRingRadius, 0.f, "read ring radius");
 
         configInput(CV_VWX_INPUT, "CV wx");
         configInput(CV_VWY_INPUT, "CV wy");
@@ -197,6 +230,14 @@ struct HexNut : Module
         float in_v = inputs[INPUT_INPUT].getVoltage();
         float blend_v = params[BLEND_PARAM].getValue();
         hex.setVoltage(in_v, blend_v);
+
+        float read_ring_radius_v = params[READ_RING_PARAM].getValue();
+        if (read_ring_radius_v != lastReadRingRadius)
+        {
+            hex.ringRadius = round(read_ring_radius_v);
+            hex.updateReadRingTiles();
+            lastReadRingRadius = read_ring_radius_v;
+        }
 
         outputs[OUTPUT_OUTPUT].setVoltage(hex.getVoltage());
 
@@ -283,6 +324,14 @@ struct HexDisplay : LedDisplay
         drawTile(args, tile);
     }
 
+    void drawReadRing(const DrawArgs &args)
+    {
+        for (const auto &tile : hex->ringTiles)
+        {
+            hexagon(args.vg, tile.x, tile.y, hex->size, nvgRGBA(255, 255, 0, 255));
+        }
+    }
+
     void drawReadCursor(const DrawArgs &args)
     {
         int readCursor = hex->readCursor;
@@ -298,6 +347,7 @@ struct HexDisplay : LedDisplay
             center(args);
             drawTiles(args);
             drawWriteCursor(args);
+            drawReadRing(args);
             drawReadCursor(args);
         }
 
@@ -334,6 +384,7 @@ struct HexNutWidget : ModuleWidget
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 100)), module, HexNut::VRZ_PARAM));
 
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(20, 110)), module, HexNut::BLEND_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 110)), module, HexNut::READ_RING_PARAM));
 
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 110)), module, HexNut::INPUT_INPUT));
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(30, 110)), module, HexNut::OUTPUT_OUTPUT));
