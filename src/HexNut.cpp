@@ -61,12 +61,20 @@ struct Hex
 
     float getVoltage()
     {
-        return tiles[readCursor].v;
+        return ringRadius < 1 ? tiles[readCursor].v : getRingVoltage();
     }
 
     float getRingVoltage()
     {
-        return tiles[readCursor].v; // TODO
+        float voltage = 0;
+
+        for (const auto &offset : ringOffsets)
+        {
+            Tile tile = getReadTileAtOffset(offset);
+            voltage += tile.v;
+        }
+
+        return voltage / ringOffsets.size();
     }
 
     Tile getTile(int i)
