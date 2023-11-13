@@ -329,8 +329,8 @@ struct HexNutWidget : ModuleWidget
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 90)), module, HexNut::VRY_PARAM));
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 100)), module, HexNut::VRZ_PARAM));
 
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 120)), module, HexNut::INPUT_INPUT));
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(30, 120)), module, HexNut::OUTPUT_OUTPUT));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 110)), module, HexNut::INPUT_INPUT));
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(30, 110)), module, HexNut::OUTPUT_OUTPUT));
 
         HexDisplay *display = createWidget<HexDisplay>(mm2px(Vec(0.0, 13.039)));
         display->box.size = mm2px(Vec(50, 55.88));
