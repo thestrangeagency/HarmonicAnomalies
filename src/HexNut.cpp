@@ -249,6 +249,14 @@ struct HexDisplay : LedDisplay
         return nvgRGBA(l, l, l, 255);
     }
 
+    void center(const DrawArgs &args)
+    {
+        float offX = box.size.x / 2 - hex->tiles[0].x;
+        float offY = box.size.y / 2 - hex->tiles[0].y;
+
+        nvgTranslate(args.vg, offX, offY);
+    }
+
     void drawTile(const DrawArgs &args, Tile tile)
     {
         hexagon(args.vg, tile.x, tile.y, hex->size, colorFromVoltage(tile.v));
@@ -283,6 +291,7 @@ struct HexDisplay : LedDisplay
     {
         if (module && layer == 1)
         {
+            center(args);
             drawTiles(args);
             drawWriteCursor(args);
             drawReadCursor(args);
@@ -324,7 +333,7 @@ struct HexNutWidget : ModuleWidget
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(30, 120)), module, HexNut::OUTPUT_OUTPUT));
 
         HexDisplay *display = createWidget<HexDisplay>(mm2px(Vec(0.0, 13.039)));
-        display->box.size = mm2px(Vec(66.04, 55.88));
+        display->box.size = mm2px(Vec(50, 55.88));
         display->module = module;
         display->hex = &module->hex;
         display->moduleWidget = this;
