@@ -45,12 +45,12 @@ struct Hex
     int ringRadius = 0;
     int maxRingRadius = 10;
     std::vector<int> ringDirs = {-1, -z_step, -y_step, 1, z_step, y_step}; // directions around a ring
-    std::vector<Tile> ringTiles;
+    std::vector<int> ringOffsets;
 
     Hex()
     {
         tiles.resize(length);
-        ringTiles.resize(maxRingRadius * 6);
+        ringOffsets.resize(maxRingRadius * 6);
         initTiles();
     }
 
@@ -74,17 +74,27 @@ struct Hex
         return tiles[clamp(i)];
     }
 
-    void updateReadRingTiles()
+    Tile getReadTile()
     {
-        ringTiles.clear();
-        int t = readCursor + z_step * ringRadius;
+        return tiles[readCursor];
+    }
+
+    Tile getReadTileAtOffset(int offset)
+    {
+        return getTile(readCursor + offset);
+    }
+
+    void updateReadRingOffsets()
+    {
+        ringOffsets.clear();
+        int t = z_step * ringRadius;
 
         for (const auto &dir : ringDirs)
         {
             for (int i = 0; i < ringRadius; i++)
             {
                 t = t + dir;
-                ringTiles.push_back(getTile(t));
+                ringOffsets.push_back(t);
             }
         }
     }
@@ -235,7 +245,7 @@ struct HexNut : Module
         if (read_ring_radius_v != lastReadRingRadius)
         {
             hex.ringRadius = round(read_ring_radius_v);
-            hex.updateReadRingTiles();
+            hex.updateReadRingOffsets();
             lastReadRingRadius = read_ring_radius_v;
         }
 
@@ -326,8 +336,9 @@ struct HexDisplay : LedDisplay
 
     void drawReadRing(const DrawArgs &args)
     {
-        for (const auto &tile : hex->ringTiles)
+        for (const auto &offset : hex->ringOffsets)
         {
+            Tile tile = hex->getReadTileAtOffset(offset);
             hexagon(args.vg, tile.x, tile.y, hex->size, nvgRGBA(255, 255, 0, 255));
         }
     }
