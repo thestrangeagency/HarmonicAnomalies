@@ -43,7 +43,7 @@ struct Hex
     int z_step = y_step + 1;
 
     int ringRadius = 0;
-    int maxRingRadius = 10;
+    int maxRingRadius = 64;
     std::vector<int> ringDirs = {-1, -z_step, -y_step, 1, z_step, y_step}; // directions around a ring
     std::vector<int> ringOffsets;
 
@@ -74,7 +74,7 @@ struct Hex
             voltage += tile.v;
         }
 
-        return voltage / ringOffsets.size();
+        return voltage / sqrt(ringOffsets.size());
     }
 
     Tile getTile(int i)
