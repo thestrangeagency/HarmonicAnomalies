@@ -21,7 +21,7 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.7019936"
-     inkscape:cx="29.96486"
+     inkscape:cx="29.671087"
      inkscape:cy="237.95624"
      inkscape:window-width="1392"
      inkscape:window-height="1099"
@@ -124,4 +124,9 @@
        r="4"
        inkscape:label="vx" />
   </g>
+  <path
+     style="font-family:'Monaspace Krypton';-inkscape-font-specification:'Monaspace Krypton';fill:#ffffff"
+     d="m 57.864032,18.766001 h 1.176 v -8.76 h -1.176 v 3.774 h -2.904 v -3.774 h -1.176 v 8.76 h 1.176 v -4.038 h 2.904 z m 3.419987,0 h 5.202 l 0.144,-0.984 h -4.182 v -2.928 h 3.216 v -0.936 h -3.216 v -2.928 h 3.96 l -0.138,-0.984 h -4.986 z m 11.579987,0 h 1.176 v -1.704 l -1.95,-2.556 1.95,-2.814 v -1.686 h -1.092 v 1.428 l -1.488,2.244 -1.74,-2.28 v -1.392 h -1.176 v 1.704 l 1.95,2.55 -1.95,2.82 v 1.686 h 1.092 v -1.416 l 1.494,-2.256 1.734,2.268 z m 3.239987,0 h 1.092 v -6.51 h 0.072 l 3.108,6.504 h 0.984 v -8.76 h -1.092 v 6.366 h -0.072 l -3.048,-6.36 h -1.044 z m 8.471988,0 h 3.192 l 1.032,-1.29 v -7.47 h -1.176 v 7.044 l -0.54,0.732 h -1.824 l -0.54,-0.732 v -7.044 h -1.176 v 7.47 z m 8.417987,0 h 1.164 v -7.776 h 2.598 l -0.096,-0.984 h -6.096 l -0.102,0.984 h 2.532 z"
+     id="text1"
+     aria-label="HEXNUT" />
 </svg>
