@@ -49,9 +49,9 @@ struct Hex
         initTiles();
     }
 
-    void setVoltage(float v)
+    void setVoltage(float v, float blend)
     {
-        tiles[writeCursor].v = v;
+        tiles[writeCursor].v = v * blend + tiles[writeCursor].v * (1.0 - blend);
     }
 
     float getVoltage()
@@ -136,6 +136,7 @@ struct HexNut : Module
         VRX_PARAM,
         VRY_PARAM,
         VRZ_PARAM,
+        BLEND_PARAM,
         PARAMS_LEN
     };
     enum InputId
@@ -173,6 +174,8 @@ struct HexNut : Module
         configParam(VRY_PARAM, -1.f, 1.f, 0.f, "read y");
         configParam(VRZ_PARAM, -1.f, 1.f, 0.f, "read z");
 
+        configParam(BLEND_PARAM, 0.f, 1.f, 1.f, "blend");
+
         configInput(CV_VWX_INPUT, "CV wx");
         configInput(CV_VWY_INPUT, "CV wy");
         configInput(CV_VWZ_INPUT, "CV wz");
@@ -192,7 +195,8 @@ struct HexNut : Module
     void process(const ProcessArgs &args) override
     {
         float in_v = inputs[INPUT_INPUT].getVoltage();
-        hex.setVoltage(in_v);
+        float blend_v = params[BLEND_PARAM].getValue();
+        hex.setVoltage(in_v, blend_v);
 
         outputs[OUTPUT_OUTPUT].setVoltage(hex.getVoltage());
 
@@ -328,6 +332,8 @@ struct HexNutWidget : ModuleWidget
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 80)), module, HexNut::VRX_PARAM));
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 90)), module, HexNut::VRY_PARAM));
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 100)), module, HexNut::VRZ_PARAM));
+
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(20, 110)), module, HexNut::BLEND_PARAM));
 
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 110)), module, HexNut::INPUT_INPUT));
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(30, 110)), module, HexNut::OUTPUT_OUTPUT));
