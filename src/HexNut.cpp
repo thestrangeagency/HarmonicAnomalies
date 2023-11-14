@@ -56,6 +56,7 @@ struct Hex
 
     void setVoltage(float v, float blend)
     {
+        blend = clamp(blend, 0.0, 1.0);
         tiles[writeCursor].v = v * blend + tiles[writeCursor].v * (1.0 - blend);
     }
 
@@ -79,7 +80,7 @@ struct Hex
 
     Tile getTile(int i)
     {
-        return tiles[clamp(i)];
+        return tiles[wrap(i)];
     }
 
     Tile getReadTile()
@@ -118,7 +119,7 @@ struct Hex
         writeZ = fmod(writeZ, length);
 
         writeCursor = round(writeX) + round(writeY) * y_step + round(writeZ) * z_step;
-        writeCursor = clamp(writeCursor);
+        writeCursor = wrap(writeCursor);
     }
 
     void advanceReadCursor(float x, float y, float z)
@@ -132,11 +133,11 @@ struct Hex
         readZ = fmod(readZ, length);
 
         readCursor = round(readX) + round(readY) * y_step + round(readZ) * z_step;
-        readCursor = clamp(readCursor);
+        readCursor = wrap(readCursor);
     }
 
 private:
-    int clamp(int x)
+    int wrap(int x)
     {
         while (x < 0)
             x += length;
@@ -196,6 +197,7 @@ struct HexNut : Module
         CV_VRX_INPUT,
         CV_VRY_INPUT,
         CV_VRZ_INPUT,
+        CV_BLEND_INPUT,
         INPUT_INPUT,
         INPUTS_LEN
     };
@@ -235,6 +237,8 @@ struct HexNut : Module
         configInput(CV_VRY_INPUT, "CV ry");
         configInput(CV_VRZ_INPUT, "CV rx");
 
+        configInput(CV_BLEND_INPUT, "CV blend");
+
         configInput(INPUT_INPUT, "signal");
         configOutput(OUTPUT_OUTPUT, "signal");
     }
@@ -245,8 +249,10 @@ struct HexNut : Module
 
     void process(const ProcessArgs &args) override
     {
+        float scale = 0.1;
+
         float in_v = inputs[INPUT_INPUT].getVoltage();
-        float blend_v = params[BLEND_PARAM].getValue();
+        float blend_v = params[BLEND_PARAM].getValue() + inputs[CV_BLEND_INPUT].getVoltage() * scale;
         hex.setVoltage(in_v, blend_v);
 
         float read_ring_radius_v = params[READ_RING_PARAM].getValue();
@@ -258,8 +264,6 @@ struct HexNut : Module
         }
 
         outputs[OUTPUT_OUTPUT].setVoltage(hex.getVoltage());
-
-        float scale = 0.1;
 
         float wx = params[VWX_PARAM].getValue() + inputs[CV_VWX_INPUT].getVoltage() * scale;
         float wy = params[VWY_PARAM].getValue() + inputs[CV_VWY_INPUT].getVoltage() * scale;
@@ -402,6 +406,7 @@ struct HexNutWidget : ModuleWidget
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 90)), module, HexNut::VRY_PARAM));
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 100)), module, HexNut::VRZ_PARAM));
 
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 110)), module, HexNut::CV_BLEND_INPUT));
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(20, 110)), module, HexNut::BLEND_PARAM));
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(30, 110)), module, HexNut::READ_RING_PARAM));
 
