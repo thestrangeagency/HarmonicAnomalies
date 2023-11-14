@@ -26,6 +26,9 @@ struct Hex
     const int yAxis = 3 * radius - 2;
     const int length = pow(radius, 3) - pow(radius - 1, 3); // 21931 if radius = 86
 
+    int readLength = length;
+    int writeLength = length;
+
     std::vector<Tile> tiles;
 
     int writeCursor = 0;
@@ -54,6 +57,13 @@ struct Hex
         initTiles();
     }
 
+    void setEffectiveRadius(float v)
+    {
+        int r = round(radius * v);
+        r = clamp(r, 1, radius);
+        readLength = writeLength = pow(r, 3) - pow(r - 1, 3);
+    }
+
     void setVoltage(float v, float blend)
     {
         blend = clamp(blend, 0.0, 1.0);
@@ -80,7 +90,7 @@ struct Hex
 
     Tile getTile(int i)
     {
-        return tiles[wrap(i)];
+        return tiles[wrap(i, length)];
     }
 
     Tile getReadTile()
@@ -119,7 +129,7 @@ struct Hex
         writeZ = fmod(writeZ, length);
 
         writeCursor = round(writeX) + round(writeY) * y_step + round(writeZ) * z_step;
-        writeCursor = wrap(writeCursor);
+        writeCursor = wrap(writeCursor, writeLength);
     }
 
     void advanceReadCursor(float x, float y, float z)
@@ -133,15 +143,15 @@ struct Hex
         readZ = fmod(readZ, length);
 
         readCursor = round(readX) + round(readY) * y_step + round(readZ) * z_step;
-        readCursor = wrap(readCursor);
+        readCursor = wrap(readCursor, readLength);
     }
 
 private:
-    int wrap(int x)
+    int wrap(int x, int wrapLength)
     {
         while (x < 0)
-            x += length;
-        x %= length;
+            x += wrapLength;
+        x %= wrapLength;
         return x;
     }
 
@@ -187,6 +197,7 @@ struct HexNut : Module
         VRZ_PARAM,
         BLEND_PARAM,
         READ_RING_PARAM,
+        CROP_PARAM,
         PARAMS_LEN
     };
     enum InputId
@@ -228,6 +239,7 @@ struct HexNut : Module
 
         configParam(BLEND_PARAM, 0.f, 1.f, 1.f, "blend");
         configParam(READ_RING_PARAM, 0.f, hex.maxRingRadius, 0.f, "read ring radius");
+        configParam(CROP_PARAM, 0.f, 1.f, 1.f, "crop");
 
         configInput(CV_VWX_INPUT, "CV wx");
         configInput(CV_VWY_INPUT, "CV wy");
@@ -250,6 +262,9 @@ struct HexNut : Module
     void process(const ProcessArgs &args) override
     {
         float scale = 0.1;
+
+        float radius_v = params[CROP_PARAM].getValue();
+        hex.setEffectiveRadius(radius_v);
 
         float in_v = inputs[INPUT_INPUT].getVoltage();
         float blend_v = params[BLEND_PARAM].getValue() + inputs[CV_BLEND_INPUT].getVoltage() * scale;
@@ -409,6 +424,7 @@ struct HexNutWidget : ModuleWidget
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 110)), module, HexNut::CV_BLEND_INPUT));
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(20, 110)), module, HexNut::BLEND_PARAM));
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(30, 110)), module, HexNut::READ_RING_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 110)), module, HexNut::CROP_PARAM));
 
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 120)), module, HexNut::INPUT_INPUT));
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(40, 120)), module, HexNut::OUTPUT_OUTPUT));
