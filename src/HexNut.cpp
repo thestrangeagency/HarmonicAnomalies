@@ -57,7 +57,7 @@ struct Hex
         initTiles();
     }
 
-    void setEffectiveRadius(float v)
+    void setCrop(float v)
     {
         int r = round(radius * v);
         r = clamp(r, 1, radius);
@@ -224,6 +224,7 @@ struct HexNut : Module
 
     Hex hex;
     float lastReadRingRadius = 0;
+    float lastCrop = 1;
 
     HexNut()
     {
@@ -263,8 +264,12 @@ struct HexNut : Module
     {
         float scale = 0.1;
 
-        float radius_v = params[CROP_PARAM].getValue();
-        hex.setEffectiveRadius(radius_v);
+        float crop_v = params[CROP_PARAM].getValue();
+        if (crop_v != lastCrop)
+        {
+            hex.setCrop(crop_v);
+            lastCrop = crop_v;
+        }
 
         float in_v = inputs[INPUT_INPUT].getVoltage();
         float blend_v = params[BLEND_PARAM].getValue() + inputs[CV_BLEND_INPUT].getVoltage() * scale;
