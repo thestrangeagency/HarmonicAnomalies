@@ -106,14 +106,14 @@ struct Hex
     void updateReadRingOffsets()
     {
         ringOffsets.clear();
-        int t = z_step * ringRadius;
+        int top = z_step * ringRadius;
 
         for (const auto &dir : ringDirs)
         {
             for (int i = 0; i < ringRadius; i++)
             {
-                t = t + dir;
-                ringOffsets.push_back(t);
+                top = top + dir;
+                ringOffsets.push_back(top);
             }
         }
     }
