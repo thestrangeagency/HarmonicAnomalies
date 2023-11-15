@@ -542,6 +542,7 @@ struct HexNutWidget : ModuleWidget
         float top = 67.5;
 
         addParam(createParamCentered<Trimpot>(mm2px(Vec(5, top + 2)), module, HexNut::WRITE_RADIUS_PARAM));
+        addParam(createParamCentered<Trimpot>(mm2px(Vec(25, top + 2)), module, HexNut::CROP_PARAM));
         addParam(createParamCentered<Trimpot>(mm2px(Vec(45, top + 2)), module, HexNut::READ_RADIUS_PARAM));
 
         addParam(createParamCentered<CKSSThreeHorizontal>(mm2px(Vec(15, top + 2)), module, HexNut::WRITE_MODE_PARAM));
@@ -555,18 +556,17 @@ struct HexNutWidget : ModuleWidget
         addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(20, top + 20)), module, HexNut::VWY_PARAM));
         addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(20, top + 30)), module, HexNut::VWZ_PARAM));
 
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(30, top + 10)), module, HexNut::CV_VRX_INPUT));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(30, top + 20)), module, HexNut::CV_VRY_INPUT));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(30, top + 30)), module, HexNut::CV_VRZ_INPUT));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(30, top + 10)), module, HexNut::VRX_PARAM));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(30, top + 20)), module, HexNut::VRY_PARAM));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(30, top + 30)), module, HexNut::VRZ_PARAM));
 
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40, top + 10)), module, HexNut::VRX_PARAM));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40, top + 20)), module, HexNut::VRY_PARAM));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40, top + 30)), module, HexNut::VRZ_PARAM));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 10)), module, HexNut::CV_VRX_INPUT));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 20)), module, HexNut::CV_VRY_INPUT));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 30)), module, HexNut::CV_VRZ_INPUT));
 
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 40)), module, HexNut::CV_BLEND_INPUT));
         addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(20, top + 40)), module, HexNut::BLEND_PARAM));
         addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(30, top + 40)), module, HexNut::READ_RING_PARAM));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40, top + 40)), module, HexNut::CROP_PARAM));
 
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 50)), module, HexNut::INPUT_INPUT));
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(40, top + 50)), module, HexNut::OUTPUT_OUTPUT));
