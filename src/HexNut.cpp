@@ -34,7 +34,10 @@ struct Hex
     std::vector<Tile> tiles;
 
     int writeCursor = 0;
+    int writeRingCursor = 0;
+
     int readCursor = 0;
+    int readRingCursor = 0;
 
     float writeX = 0;
     float writeY = 0;
@@ -213,21 +216,19 @@ struct Hex
 
     void advanceReadCursor(float x, float y, float z)
     {
-        if (readMode == VECTOR)
-        {
-            readX += x;
-            readY += y;
-            readZ += z;
+        readX += x;
+        readY += y;
+        readZ += z;
 
-            readX = fmod(readX, length);
-            readY = fmod(readY, length);
-            readZ = fmod(readZ, length);
+        readX = fmod(readX, length);
+        readY = fmod(readY, length);
+        readZ = fmod(readZ, length);
 
-            readCursor = round(readX) + round(readY) * y_step + round(readZ) * z_step;
-        }
-        else if (readMode == RING || readMode == VORTEX)
+        int readVectorCursor = round(readX) + round(readY) * y_step + round(readZ) * z_step;
+
+        if (readMode == RING || readMode == VORTEX)
         {
-            readCursor += ringDirs[readPosRingDir];
+            readRingCursor += ringDirs[readPosRingDir];
             bool isRingEdgeComplete = ++readPosRingStep >= (readMode == RING ? readMaxRadius : readPosRingRadius);
             if (isRingEdgeComplete)
             {
@@ -243,9 +244,10 @@ struct Hex
                 }
                 readPosRingDir %= ringDirs.size();
             }
+            readRingCursor = wrap(readRingCursor, readLength);
         }
 
-        readCursor = wrap(readCursor, readLength);
+        readCursor = wrap(readVectorCursor + readRingCursor, readLength);
     }
 
 private:
