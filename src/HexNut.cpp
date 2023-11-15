@@ -171,7 +171,7 @@ struct Hex
         else if (writeMode == RING || writeMode == VORTEX)
         {
             writeCursor += ringDirs[writePosRingDir];
-            bool isRingEdgeComplete = ++writePosRingStep >= writePosRingRadius;
+            bool isRingEdgeComplete = ++writePosRingStep >= (writeMode == RING ? writeMaxRadius : writePosRingRadius);
             if (isRingEdgeComplete)
             {
                 writePosRingStep = 0;
@@ -208,7 +208,7 @@ struct Hex
         else if (readMode == RING || readMode == VORTEX)
         {
             readCursor += ringDirs[readPosRingDir];
-            bool isRingEdgeComplete = ++readPosRingStep >= readPosRingRadius;
+            bool isRingEdgeComplete = ++readPosRingStep >= (readMode == RING ? readMaxRadius : readPosRingRadius);
             if (isRingEdgeComplete)
             {
                 readPosRingStep = 0;
