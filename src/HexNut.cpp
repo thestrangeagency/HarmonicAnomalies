@@ -436,8 +436,8 @@ struct HexNutWidget : ModuleWidget
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 50)), module, HexNut::INPUT_INPUT));
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(40, top + 50)), module, HexNut::OUTPUT_OUTPUT));
 
-        HexDisplay *display = createWidget<HexDisplay>(mm2px(Vec(0.0, 13.039)));
-        display->box.size = mm2px(Vec(50, 55.88));
+        HexDisplay *display = createWidget<HexDisplay>(mm2px(Vec(0.0, 10)));
+        display->box.size = mm2px(Vec(50, 55));
         display->module = module;
         display->hex = &module->hex;
         display->moduleWidget = this;
