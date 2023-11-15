@@ -57,6 +57,12 @@ struct Hex
         VORTEX
     };
 
+    Mode floatToMode(float value)
+    {
+        int roundedValue = static_cast<int>(std::round(value));
+        return static_cast<Mode>(roundedValue);
+    }
+
     Mode writeMode = Mode::VECTOR;
     Mode readMode = Mode::VECTOR;
 
@@ -245,8 +251,8 @@ struct HexNut : Module
     {
         config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 
-        configParam(WRITE_MODE_PARAM, -1.f, 1.f, 0.f, "write mode");
-        configParam(READ_MODE_PARAM, -1.f, 1.f, 0.f, "read mode");
+        configParam(WRITE_MODE_PARAM, 1.f, 3.f, 1.f, "write mode");
+        configParam(READ_MODE_PARAM, 1.f, 3.f, 1.f, "read mode");
 
         configParam(VWX_PARAM, -1.f, 1.f, 0.f, "write x");
         configParam(VWY_PARAM, -1.f, 1.f, 0.f, "write y");
@@ -280,6 +286,11 @@ struct HexNut : Module
 
     void process(const ProcessArgs &args) override
     {
+        float w_mode_v = params[WRITE_MODE_PARAM].getValue();
+        float r_mode_v = params[READ_MODE_PARAM].getValue();
+        hex.writeMode = hex.floatToMode(w_mode_v);
+        hex.readMode = hex.floatToMode(r_mode_v);
+
         float scale = 0.1;
 
         float crop_v = params[CROP_PARAM].getValue();
