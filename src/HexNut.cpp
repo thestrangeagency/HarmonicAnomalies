@@ -9,6 +9,8 @@ struct Tile
     float x;
     float y;
     float v;
+    float writ;
+    float read;
 };
 
 struct Hex
@@ -104,11 +106,18 @@ struct Hex
     {
         blend = clamp(blend, 0.0, 1.0);
         tiles[writeCursor].v = v * blend + tiles[writeCursor].v * (1.0 - blend);
+        tiles[writeCursor].writ = 1;
     }
 
     float getVoltage()
     {
-        return ringRadius < 1 ? tiles[readCursor].v : getRingVoltage();
+        return ringRadius < 1 ? getTileVoltage(readCursor) : getRingVoltage();
+    }
+
+    float getTileVoltage(int i)
+    {
+        tiles[i].read = 1;
+        return tiles[i].v;
     }
 
     float getRingVoltage()
@@ -117,11 +126,17 @@ struct Hex
 
         for (const auto &offset : ringOffsets)
         {
-            Tile tile = getReadTileAtOffset(offset);
-            voltage += tile.v;
+            int i = getReadIndexAtOffset(offset);
+            voltage += getTileVoltage(i);
         }
 
         return voltage / sqrt(ringOffsets.size());
+    }
+
+    void decayTile(int i)
+    {
+        tiles[i].writ *= .75;
+        tiles[i].read *= .75;
     }
 
     Tile getTile(int i)
@@ -137,6 +152,11 @@ struct Hex
     Tile getReadTileAtOffset(int offset)
     {
         return getTile(readCursor + offset);
+    }
+
+    int getReadIndexAtOffset(int offset)
+    {
+        return wrap(readCursor, readLength);
     }
 
     void updateReadRingOffsets()
@@ -245,6 +265,8 @@ private:
             tiles[i].x = c[0];
             tiles[i].y = c[1];
             tiles[i].v = 0;
+            tiles[i].writ = 0;
+            tiles[i].read = 0;
         }
     }
 
@@ -431,11 +453,13 @@ struct HexDisplay : LedDisplay
         nvgFill(vg);
     }
 
-    NVGcolor colorFromVoltage(float v)
+    NVGcolor colorFromTile(Tile tile)
     {
-        float vNorm = abs(v) / 5.0;
-        int l = 255 * vNorm;
-        return nvgRGBA(l, l, l, 255);
+        float vNorm = abs(tile.v) / 5.0;
+        int r = fmin(255, round(255 * vNorm + 255 * tile.writ));
+        int g = 128 * vNorm;
+        int b = fmin(255, round(255 * vNorm + 255 * tile.read));
+        return nvgRGBA(r, g, b, 255);
     }
 
     void center(const DrawArgs &args)
@@ -448,7 +472,7 @@ struct HexDisplay : LedDisplay
 
     void drawTile(const DrawArgs &args, Tile tile)
     {
-        hexagon(args.vg, tile.x, tile.y, hex->size, colorFromVoltage(tile.v));
+        hexagon(args.vg, tile.x, tile.y, hex->size, colorFromTile(tile));
     }
 
     void drawTiles(const DrawArgs &args)
@@ -457,6 +481,7 @@ struct HexDisplay : LedDisplay
         {
             Tile tile = hex->tiles[i];
             drawTile(args, tile);
+            hex->decayTile(i);
         }
     }
 
@@ -473,7 +498,7 @@ struct HexDisplay : LedDisplay
         for (const auto &offset : hex->ringOffsets)
         {
             Tile tile = hex->getReadTileAtOffset(offset);
-            hexagon(args.vg, tile.x, tile.y, hex->size, nvgRGBA(255, 255, 0, 255));
+            hexagon(args.vg, tile.x, tile.y, hex->size, nvgRGBA(0, 0, 255, 255));
         }
     }
 
