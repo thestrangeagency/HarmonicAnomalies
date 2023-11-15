@@ -69,16 +69,28 @@ struct Hex
     int writePosRingRadius = radius / 2;
     int writePosRingDir = 0;
     int writePosRingStep = 0;
+    int writeMaxRadius = radius;
 
     int readPosRingRadius = radius / 2;
     int readPosRingDir = 0;
     int readPosRingStep = 0;
+    int readMaxRadius = radius;
 
     Hex()
     {
         tiles.resize(length);
         ringOffsets.resize(maxRingRadius * 6);
         initTiles();
+    }
+
+    void setWriteMaxRadius(float v)
+    {
+        writeMaxRadius = round(radius * v);
+    }
+
+    void setReadMaxRadius(float v)
+    {
+        readMaxRadius = round(radius * v);
     }
 
     void setCrop(float v)
@@ -168,7 +180,7 @@ struct Hex
                     if (writeMode == VORTEX) // increase radius in vortex mode
                     {
                         writePosRingRadius++;
-                        writePosRingRadius %= radius;
+                        writePosRingRadius %= writeMaxRadius;
                     }
                 }
                 writePosRingDir %= ringDirs.size();
@@ -204,7 +216,7 @@ struct Hex
                     if (readMode == VORTEX) // increase radius in vortex mode
                     {
                         readPosRingRadius++;
-                        readPosRingRadius %= radius;
+                        readPosRingRadius %= readMaxRadius;
                     }
                 }
                 readPosRingDir %= ringDirs.size();
@@ -259,6 +271,8 @@ struct HexNut : Module
     {
         WRITE_MODE_PARAM,
         READ_MODE_PARAM,
+        WRITE_RADIUS_PARAM,
+        READ_RADIUS_PARAM,
         VWX_PARAM,
         VWY_PARAM,
         VWZ_PARAM,
@@ -303,6 +317,9 @@ struct HexNut : Module
         configParam(WRITE_MODE_PARAM, 1.f, 3.f, 1.f, "write mode");
         configParam(READ_MODE_PARAM, 1.f, 3.f, 1.f, "read mode");
 
+        configParam(WRITE_RADIUS_PARAM, 0.f, 1.f, 1.f, "vortex write radius");
+        configParam(READ_RADIUS_PARAM, 0.f, 1.f, 1.f, "vortex read radius");
+
         configParam(VWX_PARAM, -1.f, 1.f, 0.f, "write x");
         configParam(VWY_PARAM, -1.f, 1.f, 0.f, "write y");
         configParam(VWZ_PARAM, -1.f, 1.f, 0.f, "write z");
@@ -339,6 +356,11 @@ struct HexNut : Module
         float r_mode_v = params[READ_MODE_PARAM].getValue();
         hex.writeMode = hex.floatToMode(w_mode_v);
         hex.readMode = hex.floatToMode(r_mode_v);
+
+        float w_r_v = params[WRITE_RADIUS_PARAM].getValue();
+        float r_r_v = params[READ_RADIUS_PARAM].getValue();
+        hex.setWriteMaxRadius(w_r_v);
+        hex.setReadMaxRadius(r_r_v);
 
         float scale = 0.1;
 
@@ -489,6 +511,9 @@ struct HexNutWidget : ModuleWidget
         addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
         float top = 67.5;
+
+        addParam(createParamCentered<Trimpot>(mm2px(Vec(5, top + 2)), module, HexNut::WRITE_RADIUS_PARAM));
+        addParam(createParamCentered<Trimpot>(mm2px(Vec(45, top + 2)), module, HexNut::READ_RADIUS_PARAM));
 
         addParam(createParamCentered<CKSSThreeHorizontal>(mm2px(Vec(15, top + 2)), module, HexNut::WRITE_MODE_PARAM));
         addParam(createParamCentered<CKSSThreeHorizontal>(mm2px(Vec(35, top + 2)), module, HexNut::READ_MODE_PARAM));
