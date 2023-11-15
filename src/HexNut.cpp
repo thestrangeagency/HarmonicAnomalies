@@ -171,17 +171,18 @@ struct Hex
         else if (writeMode == RING || writeMode == VORTEX)
         {
             writeCursor += ringDirs[writePosRingDir];
-            if (++writePosRingStep >= writePosRingRadius) // ring edge complete
+            bool isRingEdgeComplete = ++writePosRingStep >= writePosRingRadius;
+            if (isRingEdgeComplete)
             {
                 writePosRingStep = 0;
-                writePosRingDir++;                                        // change to next edge direction
-                if (writePosRingDir == static_cast<int>(ringDirs.size())) // ring complete
+                writePosRingDir++; // change to next edge direction
+
+                bool isRingComplete = writePosRingDir == static_cast<int>(ringDirs.size());
+                if (isRingComplete && writeMode == VORTEX)
                 {
-                    if (writeMode == VORTEX) // increase radius in vortex mode
-                    {
-                        writePosRingRadius++;
-                        writePosRingRadius %= writeMaxRadius;
-                    }
+                    // increase radius in vortex mode
+                    writePosRingRadius++;
+                    writePosRingRadius %= writeMaxRadius;
                 }
                 writePosRingDir %= ringDirs.size();
             }
@@ -207,17 +208,18 @@ struct Hex
         else if (readMode == RING || readMode == VORTEX)
         {
             readCursor += ringDirs[readPosRingDir];
-            if (++readPosRingStep >= readPosRingRadius) // ring edge complete
+            bool isRingEdgeComplete = ++readPosRingStep >= readPosRingRadius;
+            if (isRingEdgeComplete)
             {
                 readPosRingStep = 0;
-                readPosRingDir++;                                        // change to next edge direction
-                if (readPosRingDir == static_cast<int>(ringDirs.size())) // ring complete
+                readPosRingDir++; // change to next edge direction
+
+                bool isRingComplete = readPosRingDir == static_cast<int>(ringDirs.size());
+                if (isRingComplete && readMode == VORTEX)
                 {
-                    if (readMode == VORTEX) // increase radius in vortex mode
-                    {
-                        readPosRingRadius++;
-                        readPosRingRadius %= readMaxRadius;
-                    }
+                    // increase radius in vortex mode
+                    readPosRingRadius++;
+                    readPosRingRadius %= readMaxRadius;
                 }
                 readPosRingDir %= ringDirs.size();
             }
