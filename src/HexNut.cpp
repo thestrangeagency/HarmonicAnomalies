@@ -45,10 +45,23 @@ struct Hex
     int y_step = yAxis;
     int z_step = y_step + 1;
 
-    int ringRadius = 0;
+    int ringRadius = 0; // radius of ring around cursor
     int maxRingRadius = 64;
     std::vector<int> ringDirs = {-1, -z_step, -y_step, 1, z_step, y_step}; // directions around a ring
-    std::vector<int> ringOffsets;
+    std::vector<int> ringOffsets;                                          // given a radius, offsets from cursor to ring around cursor
+
+    enum Mode
+    {
+        VECTOR,
+        RING,
+        VORTEX
+    };
+
+    Mode writeMode = Mode::VECTOR;
+    Mode readMode = Mode::VECTOR;
+
+    int writePosRingRadius = 0;
+    int writePosRingDir = 0;
 
     Hex()
     {
@@ -189,6 +202,8 @@ struct HexNut : Module
 {
     enum ParamId
     {
+        WRITE_MODE_PARAM,
+        READ_MODE_PARAM,
         VWX_PARAM,
         VWY_PARAM,
         VWZ_PARAM,
@@ -229,6 +244,9 @@ struct HexNut : Module
     HexNut()
     {
         config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
+
+        configParam(WRITE_MODE_PARAM, -1.f, 1.f, 0.f, "write mode");
+        configParam(READ_MODE_PARAM, -1.f, 1.f, 0.f, "read mode");
 
         configParam(VWX_PARAM, -1.f, 1.f, 0.f, "write x");
         configParam(VWY_PARAM, -1.f, 1.f, 0.f, "write y");
@@ -411,6 +429,9 @@ struct HexNutWidget : ModuleWidget
         addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
         float top = 67.5;
+
+        addParam(createParamCentered<CKSSThreeHorizontal>(mm2px(Vec(15, top + 2)), module, HexNut::WRITE_MODE_PARAM));
+        addParam(createParamCentered<CKSSThreeHorizontal>(mm2px(Vec(35, top + 2)), module, HexNut::READ_MODE_PARAM));
 
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 10)), module, HexNut::CV_VWX_INPUT));
         addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 20)), module, HexNut::CV_VWY_INPUT));
