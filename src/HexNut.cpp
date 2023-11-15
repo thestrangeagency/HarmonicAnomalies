@@ -456,9 +456,9 @@ struct HexDisplay : LedDisplay
     NVGcolor colorFromTile(Tile tile)
     {
         float vNorm = abs(tile.v) / 5.0;
-        int r = fmin(255, round(255 * vNorm + 255 * tile.writ));
+        int r = fmin(255, round(128 * vNorm + 255 * tile.writ));
         int g = 128 * vNorm;
-        int b = fmin(255, round(255 * vNorm + 255 * tile.read));
+        int b = fmin(255, round(128 * vNorm + 255 * tile.read));
         return nvgRGBA(r, g, b, 255);
     }
 
