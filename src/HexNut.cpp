@@ -60,14 +60,15 @@ struct Hex
     Mode floatToMode(float value)
     {
         int roundedValue = static_cast<int>(std::round(value));
-        return static_cast<Mode>(roundedValue);
+        return static_cast<Mode>(roundedValue - 1);
     }
 
     Mode writeMode = Mode::VECTOR;
     Mode readMode = Mode::VECTOR;
 
-    int writePosRingRadius = 0;
+    int writePosRingRadius = radius / 2;
     int writePosRingDir = 0;
+    int writePosRingStep = 0;
 
     Hex()
     {
@@ -139,15 +140,37 @@ struct Hex
 
     void advanceWriteCursor(float x, float y, float z)
     {
-        writeX += x;
-        writeY += y;
-        writeZ += z;
+        if (writeMode == VECTOR)
+        {
+            writeX += x;
+            writeY += y;
+            writeZ += z;
 
-        writeX = fmod(writeX, length);
-        writeY = fmod(writeY, length);
-        writeZ = fmod(writeZ, length);
+            writeX = fmod(writeX, length);
+            writeY = fmod(writeY, length);
+            writeZ = fmod(writeZ, length);
 
-        writeCursor = round(writeX) + round(writeY) * y_step + round(writeZ) * z_step;
+            writeCursor = round(writeX) + round(writeY) * y_step + round(writeZ) * z_step;
+        }
+        else if (writeMode == RING || writeMode == VORTEX)
+        {
+            writeCursor += ringDirs[writePosRingDir];
+            if (++writePosRingStep >= writePosRingRadius) // ring edge complete
+            {
+                writePosRingStep = 0;
+                writePosRingDir++;                                        // change to next edge direction
+                if (writePosRingDir == static_cast<int>(ringDirs.size())) // ring complete
+                {
+                    if (writeMode == VORTEX) // increase radius in vortex mode
+                    {
+                        writePosRingRadius++;
+                        writePosRingRadius %= radius;
+                    }
+                }
+                writePosRingDir %= ringDirs.size();
+            }
+        }
+
         writeCursor = wrap(writeCursor, writeLength);
     }
 
