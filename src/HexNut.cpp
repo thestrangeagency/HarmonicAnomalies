@@ -70,6 +70,10 @@ struct Hex
     int writePosRingDir = 0;
     int writePosRingStep = 0;
 
+    int readPosRingRadius = radius / 2;
+    int readPosRingDir = 0;
+    int readPosRingStep = 0;
+
     Hex()
     {
         tiles.resize(length);
@@ -176,15 +180,37 @@ struct Hex
 
     void advanceReadCursor(float x, float y, float z)
     {
-        readX += x;
-        readY += y;
-        readZ += z;
+        if (readMode == VECTOR)
+        {
+            readX += x;
+            readY += y;
+            readZ += z;
 
-        readX = fmod(readX, length);
-        readY = fmod(readY, length);
-        readZ = fmod(readZ, length);
+            readX = fmod(readX, length);
+            readY = fmod(readY, length);
+            readZ = fmod(readZ, length);
 
-        readCursor = round(readX) + round(readY) * y_step + round(readZ) * z_step;
+            readCursor = round(readX) + round(readY) * y_step + round(readZ) * z_step;
+        }
+        else if (readMode == RING || readMode == VORTEX)
+        {
+            readCursor += ringDirs[readPosRingDir];
+            if (++readPosRingStep >= readPosRingRadius) // ring edge complete
+            {
+                readPosRingStep = 0;
+                readPosRingDir++;                                        // change to next edge direction
+                if (readPosRingDir == static_cast<int>(ringDirs.size())) // ring complete
+                {
+                    if (readMode == VORTEX) // increase radius in vortex mode
+                    {
+                        readPosRingRadius++;
+                        readPosRingRadius %= radius;
+                    }
+                }
+                readPosRingDir %= ringDirs.size();
+            }
+        }
+
         readCursor = wrap(readCursor, readLength);
     }
 
