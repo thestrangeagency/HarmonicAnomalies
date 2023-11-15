@@ -410,29 +410,31 @@ struct HexNutWidget : ModuleWidget
         addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 80)), module, HexNut::CV_VWX_INPUT));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 90)), module, HexNut::CV_VWY_INPUT));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 100)), module, HexNut::CV_VWZ_INPUT));
+        float top = 67.5;
 
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(20, 80)), module, HexNut::VWX_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(20, 90)), module, HexNut::VWY_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(20, 100)), module, HexNut::VWZ_PARAM));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 10)), module, HexNut::CV_VWX_INPUT));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 20)), module, HexNut::CV_VWY_INPUT));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 30)), module, HexNut::CV_VWZ_INPUT));
 
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(30, 80)), module, HexNut::CV_VRX_INPUT));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(30, 90)), module, HexNut::CV_VRY_INPUT));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(30, 100)), module, HexNut::CV_VRZ_INPUT));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(20, top + 10)), module, HexNut::VWX_PARAM));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(20, top + 20)), module, HexNut::VWY_PARAM));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(20, top + 30)), module, HexNut::VWZ_PARAM));
 
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 80)), module, HexNut::VRX_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 90)), module, HexNut::VRY_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 100)), module, HexNut::VRZ_PARAM));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(30, top + 10)), module, HexNut::CV_VRX_INPUT));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(30, top + 20)), module, HexNut::CV_VRY_INPUT));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(30, top + 30)), module, HexNut::CV_VRZ_INPUT));
 
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 110)), module, HexNut::CV_BLEND_INPUT));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(20, 110)), module, HexNut::BLEND_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(30, 110)), module, HexNut::READ_RING_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(40, 110)), module, HexNut::CROP_PARAM));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40, top + 10)), module, HexNut::VRX_PARAM));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40, top + 20)), module, HexNut::VRY_PARAM));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40, top + 30)), module, HexNut::VRZ_PARAM));
 
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 120)), module, HexNut::INPUT_INPUT));
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(40, 120)), module, HexNut::OUTPUT_OUTPUT));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 40)), module, HexNut::CV_BLEND_INPUT));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(20, top + 40)), module, HexNut::BLEND_PARAM));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(30, top + 40)), module, HexNut::READ_RING_PARAM));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40, top + 40)), module, HexNut::CROP_PARAM));
+
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 50)), module, HexNut::INPUT_INPUT));
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(40, top + 50)), module, HexNut::OUTPUT_OUTPUT));
 
         HexDisplay *display = createWidget<HexDisplay>(mm2px(Vec(0.0, 13.039)));
         display->box.size = mm2px(Vec(50, 55.88));
