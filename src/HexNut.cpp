@@ -425,7 +425,7 @@ struct HexNut : Module
     }
 };
 
-struct HexDisplay : Widget // LedDisplay
+struct HexDisplay : LedDisplay
 {
     HexNut *module;
     Hex *hex;
@@ -534,15 +534,10 @@ struct HexNutWidget : ModuleWidget
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/HexNutHex.svg")));
 
-        // addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-        // addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-        // addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-        // addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-
         float top = 0.06;
 
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(14.64, 60.18 + top)), module, HexNut::WRITE_RADIUS_PARAM));
-        // addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(29.29, 60.18 + top)), module, HexNut::CROP_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(29.29, 60.18 + top)), module, HexNut::CROP_PARAM));
         addParam(createParamCentered<NKK>(mm2px(Vec(43.93, 60.18 + top)), module, HexNut::READ_MODE_PARAM));
 
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(7.32, 72.86 + top)), module, HexNut::VWY_PARAM));
@@ -595,8 +590,8 @@ struct HexNutWidget : ModuleWidget
                 addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(40, top + 50)), module, HexNut::OUTPUT_OUTPUT));
         */
 
-        HexDisplay *display = createWidget<HexDisplay>(mm2px(Vec(3.56, 8.33)));
-        display->box.size = mm2px(Vec(43.6, 50));
+        HexDisplay *display = createWidget<HexDisplay>(mm2px(Vec(0, 0)));
+        display->box.size = mm2px(Vec(50, 55));
         display->module = module;
         display->hex = &module->hex;
         display->moduleWidget = this;
