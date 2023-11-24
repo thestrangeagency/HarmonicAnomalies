@@ -12,9 +12,11 @@ struct HexExCV : Module
         CV_VWX_INPUT,
         CV_VWY_INPUT,
         CV_VWZ_INPUT,
+        CV_WRITE_SIZE_INPUT,
         CV_VRX_INPUT,
         CV_VRY_INPUT,
         CV_VRZ_INPUT,
+        CV_READ_SIZE_INPUT,
         CV_BLEND_INPUT,
         INPUTS_LEN
     };
@@ -35,9 +37,13 @@ struct HexExCV : Module
         configInput(CV_VWY_INPUT, "CV Write Y");
         configInput(CV_VWZ_INPUT, "CV Write Z");
 
+        configInput(CV_WRITE_SIZE_INPUT, "CV Write Vortex Size");
+
         configInput(CV_VRX_INPUT, "CV Read X");
         configInput(CV_VRY_INPUT, "CV Read Y");
         configInput(CV_VRZ_INPUT, "CV Read Z");
+
+        configInput(CV_READ_SIZE_INPUT, "CV Read Vortex Size");
 
         configInput(CV_BLEND_INPUT, "CV Blend");
     }
@@ -54,15 +60,19 @@ struct HexExCVWidget : ModuleWidget
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/HexExCV.svg")));
 
-        addInput(createInput<FlatPort>((Vec(10, 94)), module, HexExCV::CV_VWX_INPUT));
-        addInput(createInput<FlatPort>((Vec(10, 122)), module, HexExCV::CV_VWY_INPUT));
-        addInput(createInput<FlatPort>((Vec(10, 150)), module, HexExCV::CV_VWZ_INPUT));
+        addInput(createInput<FlatPort>((Vec(10, 66)), module, HexExCV::CV_VWX_INPUT));
+        addInput(createInput<FlatPort>((Vec(10, 94)), module, HexExCV::CV_VWY_INPUT));
+        addInput(createInput<FlatPort>((Vec(10, 122)), module, HexExCV::CV_VWZ_INPUT));
+
+        addInput(createInput<FlatPort>((Vec(10, 150)), module, HexExCV::CV_WRITE_SIZE_INPUT));
 
         addInput(createInput<FlatPort>((Vec(10, 206)), module, HexExCV::CV_VRX_INPUT));
         addInput(createInput<FlatPort>((Vec(10, 234)), module, HexExCV::CV_VRY_INPUT));
         addInput(createInput<FlatPort>((Vec(10, 262)), module, HexExCV::CV_VRZ_INPUT));
 
-        addInput(createInput<FlatPort>((Vec(10, 318)), module, HexExCV::CV_BLEND_INPUT));
+        addInput(createInput<FlatPort>((Vec(10, 290)), module, HexExCV::CV_READ_SIZE_INPUT));
+
+        addInput(createInput<FlatPort>((Vec(10, 346)), module, HexExCV::CV_BLEND_INPUT));
     }
 };
 

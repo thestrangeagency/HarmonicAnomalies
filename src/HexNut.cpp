@@ -92,12 +92,16 @@ struct Hex
 
     void setWriteMaxRadius(float v)
     {
-        writeMaxRadius = round(radius * v);
+        int r = round(radius * v);
+        r = clamp(r, 1, radius);
+        writeMaxRadius = r;
     }
 
     void setReadMaxRadius(float v)
     {
-        readMaxRadius = round(radius * v);
+        int r = round(radius * v);
+        r = clamp(r, 1, radius);
+        readMaxRadius = r;
     }
 
     void setCrop(float v)
@@ -368,11 +372,6 @@ struct HexNut : Module
         hex.writeMode = hex.floatToMode(w_mode_v);
         hex.readMode = hex.floatToMode(r_mode_v);
 
-        float w_r_v = params[WRITE_RADIUS_PARAM].getValue();
-        float r_r_v = params[READ_RADIUS_PARAM].getValue();
-        hex.setWriteMaxRadius(w_r_v);
-        hex.setReadMaxRadius(r_r_v);
-
         float crop_v = params[CROP_PARAM].getValue();
         if (crop_v != lastCrop)
         {
@@ -384,6 +383,7 @@ struct HexNut : Module
 
         float cv_vwx_v = 0, cv_vwy_v = 0, cv_vwz_v = 0;
         float cv_vrx_v = 0, cv_vry_v = 0, cv_vrz_v = 0;
+        float cv_write_size_v = 0, cv_read_size_v = 0;
         float cv_blend_v = 0;
         float cv_scale = 0.1;
 
@@ -394,14 +394,23 @@ struct HexNut : Module
             cv_vwy_v = expander->getInput(HexExCV::CV_VWY_INPUT).getVoltage() * cv_scale;
             cv_vwz_v = expander->getInput(HexExCV::CV_VWZ_INPUT).getVoltage() * cv_scale;
 
+            cv_write_size_v = expander->getInput(HexExCV::CV_WRITE_SIZE_INPUT).getVoltage() * cv_scale;
+
             cv_vrx_v = expander->getInput(HexExCV::CV_VRX_INPUT).getVoltage() * cv_scale;
             cv_vry_v = expander->getInput(HexExCV::CV_VRY_INPUT).getVoltage() * cv_scale;
             cv_vrz_v = expander->getInput(HexExCV::CV_VRZ_INPUT).getVoltage() * cv_scale;
+
+            cv_read_size_v = expander->getInput(HexExCV::CV_READ_SIZE_INPUT).getVoltage() * cv_scale;
 
             cv_blend_v = expander->getInput(HexExCV::CV_BLEND_INPUT).getVoltage() * cv_scale;
         }
 
         // end expander
+
+        float w_r_v = params[WRITE_RADIUS_PARAM].getValue() + cv_write_size_v;
+        float r_r_v = params[READ_RADIUS_PARAM].getValue() + cv_read_size_v;
+        hex.setWriteMaxRadius(w_r_v);
+        hex.setReadMaxRadius(r_r_v);
 
         float in_v = inputs[INPUT_INPUT].getVoltage();
         float blend_v = params[BLEND_PARAM].getValue() + cv_blend_v;
