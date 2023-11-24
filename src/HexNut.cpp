@@ -90,24 +90,28 @@ struct Hex
         initTiles();
     }
 
-    void setWriteMaxRadius(float v)
+    int voltageToRadius(float v)
     {
         int r = round(radius * v);
         r = clamp(r, 1, radius);
+        return r;
+    }
+
+    void setWriteMaxRadius(float v)
+    {
+        int r = voltageToRadius(v);
         writeMaxRadius = r;
     }
 
     void setReadMaxRadius(float v)
     {
-        int r = round(radius * v);
-        r = clamp(r, 1, radius);
+        int r = voltageToRadius(v);
         readMaxRadius = r;
     }
 
     void setCrop(float v)
     {
-        int r = round(radius * v);
-        r = clamp(r, 1, radius);
+        int r = voltageToRadius(v);
         readLength = writeLength = pow(r, 3) - pow(r - 1, 3);
     }
 
