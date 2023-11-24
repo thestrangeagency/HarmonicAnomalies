@@ -189,21 +189,19 @@ struct Hex
 
     void advanceWriteCursor(float x, float y, float z)
     {
-        if (writeMode == VECTOR)
-        {
-            writeX += x;
-            writeY += y;
-            writeZ += z;
+        writeX += x;
+        writeY += y;
+        writeZ += z;
 
-            writeX = fmod(writeX, length);
-            writeY = fmod(writeY, length);
-            writeZ = fmod(writeZ, length);
+        writeX = fmod(writeX, length);
+        writeY = fmod(writeY, length);
+        writeZ = fmod(writeZ, length);
 
-            writeCursor = round(writeX) + round(writeY) * y_step + round(writeZ) * z_step;
-        }
-        else if (writeMode == RING || writeMode == VORTEX)
+        int writeVectorCursor = round(writeX) + round(writeY) * y_step + round(writeZ) * z_step;
+
+        if (writeMode == RING || writeMode == VORTEX)
         {
-            writeCursor += ringDirs[writePosRingDir];
+            writeRingCursor += ringDirs[writePosRingDir];
             bool isRingEdgeComplete = ++writePosRingStep >= (writeMode == RING ? writeMaxRadius : writePosRingRadius);
             if (isRingEdgeComplete)
             {
@@ -219,9 +217,10 @@ struct Hex
                 }
                 writePosRingDir %= ringDirs.size();
             }
+            writeRingCursor = wrap(writeRingCursor, writeLength);
         }
 
-        writeCursor = wrap(writeCursor, writeLength);
+        writeCursor = wrap(writeVectorCursor + writeRingCursor, writeLength);
     }
 
     void advanceReadCursor(float x, float y, float z)
