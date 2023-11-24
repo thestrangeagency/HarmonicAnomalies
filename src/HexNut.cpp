@@ -529,8 +529,24 @@ struct FlatKnob : RoundKnob
 {
     FlatKnob()
     {
-        setSvg(Svg::load(asset::system("res/KnobFg.svg")));
-        bg->setSvg(Svg::load(asset::system("res/KnobBg.svg")));
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/KnobFg.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/KnobBg.svg")));
+    }
+};
+
+struct FlatPort : app::SvgPort
+{
+    FlatPort()
+    {
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/JackIn.svg")));
+    }
+};
+
+struct FlatPortOut : app::SvgPort
+{
+    FlatPortOut()
+    {
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/JackOut.svg")));
     }
 };
 
@@ -538,28 +554,28 @@ struct HexNutWidget : ModuleWidget
 {
     HexNutWidget(HexNut *module)
     {
-        float templateRadius = 12;
+        float tR = 12; // template radius
 
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/HexNutFlat.svg")));
 
-        addParam(createParam<RoundSmallBlackKnob>(Vec(7, 234), module, HexNut::WRITE_RADIUS_PARAM));
-        addParam(createParam<RoundSmallBlackKnob>(Vec(119, 234), module, HexNut::READ_RADIUS_PARAM));
+        addParam(createParam<FlatKnob>(Vec(7, 234), module, HexNut::WRITE_RADIUS_PARAM));
+        addParam(createParam<FlatKnob>(Vec(119, 234), module, HexNut::READ_RADIUS_PARAM));
 
-        addParam(createParamCentered<NKK>(Vec(7 + templateRadius, 262 + templateRadius), module, HexNut::WRITE_MODE_PARAM));
-        addParam(createParamCentered<NKK>(Vec(119 + templateRadius, 262 + templateRadius), module, HexNut::READ_MODE_PARAM));
+        addParam(createParamCentered<NKK>(Vec(7 + tR, 262 + tR), module, HexNut::WRITE_MODE_PARAM));
+        addParam(createParamCentered<NKK>(Vec(119 + tR, 262 + tR), module, HexNut::READ_MODE_PARAM));
 
         // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 10)), module, HexNut::CV_VWX_INPUT));
         // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 20)), module, HexNut::CV_VWY_INPUT));
         // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 30)), module, HexNut::CV_VWZ_INPUT));
 
-        addParam(createParam<RoundSmallBlackKnob>(Vec(35, 206), module, HexNut::VWX_PARAM));
-        addParam(createParam<RoundSmallBlackKnob>(Vec(35, 234), module, HexNut::VWY_PARAM));
-        addParam(createParam<RoundSmallBlackKnob>(Vec(35, 262), module, HexNut::VWZ_PARAM));
+        addParam(createParam<FlatKnob>(Vec(35, 206), module, HexNut::VWX_PARAM));
+        addParam(createParam<FlatKnob>(Vec(35, 234), module, HexNut::VWY_PARAM));
+        addParam(createParam<FlatKnob>(Vec(35, 262), module, HexNut::VWZ_PARAM));
 
-        addParam(createParam<RoundSmallBlackKnob>(Vec(91, 206), module, HexNut::VRX_PARAM));
-        addParam(createParam<RoundSmallBlackKnob>(Vec(91, 234), module, HexNut::VRY_PARAM));
-        addParam(createParam<RoundSmallBlackKnob>(Vec(91, 262), module, HexNut::VRZ_PARAM));
+        addParam(createParam<FlatKnob>(Vec(91, 206), module, HexNut::VRX_PARAM));
+        addParam(createParam<FlatKnob>(Vec(91, 234), module, HexNut::VRY_PARAM));
+        addParam(createParam<FlatKnob>(Vec(91, 262), module, HexNut::VRZ_PARAM));
 
         // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 10)), module, HexNut::CV_VRX_INPUT));
         // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 20)), module, HexNut::CV_VRY_INPUT));
@@ -567,12 +583,12 @@ struct HexNutWidget : ModuleWidget
 
         // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 40)), module, HexNut::CV_BLEND_INPUT));
 
-        addParam(createParam<RoundSmallBlackKnob>(Vec(35, 318), module, HexNut::BLEND_PARAM));
-        addParam(createParam<RoundSmallBlackKnob>(Vec(64, 318), module, HexNut::CROP_PARAM));
-        addParam(createParam<RoundSmallBlackKnob>(Vec(91, 318), module, HexNut::READ_RING_PARAM));
+        addParam(createParam<FlatKnob>(Vec(35, 318), module, HexNut::BLEND_PARAM));
+        addParam(createParam<FlatKnob>(Vec(63, 318), module, HexNut::CROP_PARAM));
+        addParam(createParam<FlatKnob>(Vec(91, 318), module, HexNut::READ_RING_PARAM));
 
-        addInput(createInputCentered<PJ301MPort>(Vec(7 + templateRadius, 346 + templateRadius), module, HexNut::INPUT_INPUT));
-        addOutput(createOutputCentered<PJ301MPort>(Vec(119 + templateRadius, 346 + templateRadius), module, HexNut::OUTPUT_OUTPUT));
+        addInput(createInputCentered<FlatPort>(Vec(7 + tR, 346 + tR), module, HexNut::INPUT_INPUT));
+        addOutput(createOutputCentered<FlatPortOut>(Vec(119 + tR, 346 + tR), module, HexNut::OUTPUT_OUTPUT));
 
         HexDisplay *display = createWidget<HexDisplay>((Vec(0.0, 41 - 4)));
         display->box.size = (Vec(150, 130 + 8));
