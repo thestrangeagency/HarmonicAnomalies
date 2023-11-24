@@ -20,6 +20,12 @@
       "tags": [
         "Sampler"
       ]
+    },
+    {
+      "slug": "HexExCV",
+      "name": "HexNut CV Expander",
+      "description": "",
+      "tags": []
     }
   ]
 }

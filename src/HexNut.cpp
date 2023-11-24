@@ -1,4 +1,6 @@
 #include "plugin.hpp"
+#include "UI.hpp"
+#include "HexExCV.hpp"
 
 #include <cmath>
 #include <algorithm>
@@ -312,13 +314,6 @@ struct HexNut : Module
     };
     enum InputId
     {
-        CV_VWX_INPUT,
-        CV_VWY_INPUT,
-        CV_VWZ_INPUT,
-        CV_VRX_INPUT,
-        CV_VRY_INPUT,
-        CV_VRZ_INPUT,
-        CV_BLEND_INPUT,
         INPUT_INPUT,
         INPUTS_LEN
     };
@@ -340,36 +335,26 @@ struct HexNut : Module
     {
         config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 
-        configParam(WRITE_MODE_PARAM, 1.f, 3.f, 1.f, "write mode");
-        configParam(READ_MODE_PARAM, 1.f, 3.f, 1.f, "read mode");
+        configParam(WRITE_MODE_PARAM, 1.f, 3.f, 1.f, "Write Mode");
+        configParam(READ_MODE_PARAM, 1.f, 3.f, 1.f, "Read Mode");
 
-        configParam(WRITE_RADIUS_PARAM, 0.f, 1.f, 1.f, "vortex write radius");
-        configParam(READ_RADIUS_PARAM, 0.f, 1.f, 1.f, "vortex read radius");
+        configParam(WRITE_RADIUS_PARAM, 0.f, 1.f, 1.f, "Vortex Write Radius");
+        configParam(READ_RADIUS_PARAM, 0.f, 1.f, 1.f, "Vortex Read Radius");
 
-        configParam(VWX_PARAM, -1.f, 1.f, 0.f, "write x");
-        configParam(VWY_PARAM, -1.f, 1.f, 0.f, "write y");
-        configParam(VWZ_PARAM, -1.f, 1.f, 0.f, "write z");
+        configParam(VWX_PARAM, -1.f, 1.f, 0.f, "Write x");
+        configParam(VWY_PARAM, -1.f, 1.f, 0.f, "Write y");
+        configParam(VWZ_PARAM, -1.f, 1.f, 0.f, "Write z");
 
-        configParam(VRX_PARAM, -1.f, 1.f, 0.f, "read x");
-        configParam(VRY_PARAM, -1.f, 1.f, 0.f, "read y");
-        configParam(VRZ_PARAM, -1.f, 1.f, 0.f, "read z");
+        configParam(VRX_PARAM, -1.f, 1.f, 0.f, "Read x");
+        configParam(VRY_PARAM, -1.f, 1.f, 0.f, "Read y");
+        configParam(VRZ_PARAM, -1.f, 1.f, 0.f, "Read z");
 
-        configParam(BLEND_PARAM, 0.f, 1.f, 1.f, "blend");
-        configParam(READ_RING_PARAM, 0.f, hex.maxRingRadius, 0.f, "read ring radius");
-        configParam(CROP_PARAM, 0.f, 1.f, 1.f, "crop");
+        configParam(BLEND_PARAM, 0.f, 1.f, 1.f, "Blend");
+        configParam(READ_RING_PARAM, 0.f, hex.maxRingRadius, 0.f, "Read Ring Radius");
+        configParam(CROP_PARAM, 0.f, 1.f, 1.f, "Crop");
 
-        configInput(CV_VWX_INPUT, "CV wx");
-        configInput(CV_VWY_INPUT, "CV wy");
-        configInput(CV_VWZ_INPUT, "CV wz");
-
-        configInput(CV_VRX_INPUT, "CV rx");
-        configInput(CV_VRY_INPUT, "CV ry");
-        configInput(CV_VRZ_INPUT, "CV rx");
-
-        configInput(CV_BLEND_INPUT, "CV blend");
-
-        configInput(INPUT_INPUT, "signal");
-        configOutput(OUTPUT_OUTPUT, "signal");
+        configInput(INPUT_INPUT, "Signal");
+        configOutput(OUTPUT_OUTPUT, "Signal");
     }
 
     /* ==================================================================== */
@@ -388,8 +373,6 @@ struct HexNut : Module
         hex.setWriteMaxRadius(w_r_v);
         hex.setReadMaxRadius(r_r_v);
 
-        float scale = 0.1;
-
         float crop_v = params[CROP_PARAM].getValue();
         if (crop_v != lastCrop)
         {
@@ -397,8 +380,31 @@ struct HexNut : Module
             lastCrop = crop_v;
         }
 
+        // expander
+
+        float cv_vwx_v = 0, cv_vwy_v = 0, cv_vwz_v = 0;
+        float cv_vrx_v = 0, cv_vry_v = 0, cv_vrz_v = 0;
+        float cv_blend_v = 0;
+        float cv_scale = 0.1;
+
+        Module *expander = getRightExpander().module;
+        if (expander && expander->model == modelHexExCV)
+        {
+            cv_vwx_v = expander->getInput(HexExCV::CV_VWX_INPUT).getVoltage() * cv_scale;
+            cv_vwy_v = expander->getInput(HexExCV::CV_VWY_INPUT).getVoltage() * cv_scale;
+            cv_vwz_v = expander->getInput(HexExCV::CV_VWZ_INPUT).getVoltage() * cv_scale;
+
+            cv_vrx_v = expander->getInput(HexExCV::CV_VRX_INPUT).getVoltage() * cv_scale;
+            cv_vry_v = expander->getInput(HexExCV::CV_VRY_INPUT).getVoltage() * cv_scale;
+            cv_vrz_v = expander->getInput(HexExCV::CV_VRZ_INPUT).getVoltage() * cv_scale;
+
+            cv_blend_v = expander->getInput(HexExCV::CV_BLEND_INPUT).getVoltage() * cv_scale;
+        }
+
+        // end expander
+
         float in_v = inputs[INPUT_INPUT].getVoltage();
-        float blend_v = params[BLEND_PARAM].getValue() + inputs[CV_BLEND_INPUT].getVoltage() * scale;
+        float blend_v = params[BLEND_PARAM].getValue() + cv_blend_v;
         hex.setVoltage(in_v, blend_v);
 
         float read_ring_radius_v = params[READ_RING_PARAM].getValue();
@@ -411,15 +417,15 @@ struct HexNut : Module
 
         outputs[OUTPUT_OUTPUT].setVoltage(hex.getVoltage());
 
-        float wx = params[VWX_PARAM].getValue() + inputs[CV_VWX_INPUT].getVoltage() * scale;
-        float wy = params[VWY_PARAM].getValue() + inputs[CV_VWY_INPUT].getVoltage() * scale;
-        float wz = params[VWZ_PARAM].getValue() + inputs[CV_VWZ_INPUT].getVoltage() * scale;
+        float wx = params[VWX_PARAM].getValue() + cv_vwx_v;
+        float wy = params[VWY_PARAM].getValue() + cv_vwy_v;
+        float wz = params[VWZ_PARAM].getValue() + cv_vwz_v;
 
         hex.advanceWriteCursor(wx, wy, wz);
 
-        float rx = params[VRX_PARAM].getValue() + inputs[CV_VRX_INPUT].getVoltage() * scale;
-        float ry = params[VRY_PARAM].getValue() + inputs[CV_VRY_INPUT].getVoltage() * scale;
-        float rz = params[VRZ_PARAM].getValue() + inputs[CV_VRZ_INPUT].getVoltage() * scale;
+        float rx = params[VRX_PARAM].getValue() + cv_vrx_v;
+        float ry = params[VRY_PARAM].getValue() + cv_vry_v;
+        float rz = params[VRZ_PARAM].getValue() + cv_vrz_v;
 
         hex.advanceReadCursor(rx, ry, rz);
     }
@@ -525,42 +531,6 @@ struct HexDisplay : LedDisplay
     }
 };
 
-struct FlatKnob : RoundKnob
-{
-    FlatKnob()
-    {
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/KnobFg.svg")));
-        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/KnobBg.svg")));
-    }
-};
-
-struct FlatPort : app::SvgPort
-{
-    FlatPort()
-    {
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/JackIn.svg")));
-    }
-};
-
-struct FlatPortOut : app::SvgPort
-{
-    FlatPortOut()
-    {
-        setSvg(Svg::load(asset::plugin(pluginInstance, "res/JackOut.svg")));
-    }
-};
-
-struct FlatSwitch : app::SvgSwitch
-{
-    FlatSwitch()
-    {
-        shadow->opacity = 0.0;
-        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch_0.svg")));
-        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch_1.svg")));
-        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch_2.svg")));
-    }
-};
-
 struct HexNutWidget : ModuleWidget
 {
     HexNutWidget(HexNut *module)
@@ -576,10 +546,6 @@ struct HexNutWidget : ModuleWidget
         addParam(createParamCentered<FlatSwitch>(Vec(7 + tR, 262 + tR), module, HexNut::WRITE_MODE_PARAM));
         addParam(createParamCentered<FlatSwitch>(Vec(119 + tR, 262 + tR), module, HexNut::READ_MODE_PARAM));
 
-        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 10)), module, HexNut::CV_VWX_INPUT));
-        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 20)), module, HexNut::CV_VWY_INPUT));
-        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 30)), module, HexNut::CV_VWZ_INPUT));
-
         addParam(createParam<FlatKnob>(Vec(35, 206), module, HexNut::VWX_PARAM));
         addParam(createParam<FlatKnob>(Vec(35, 234), module, HexNut::VWY_PARAM));
         addParam(createParam<FlatKnob>(Vec(35, 262), module, HexNut::VWZ_PARAM));
@@ -587,12 +553,6 @@ struct HexNutWidget : ModuleWidget
         addParam(createParam<FlatKnob>(Vec(91, 206), module, HexNut::VRX_PARAM));
         addParam(createParam<FlatKnob>(Vec(91, 234), module, HexNut::VRY_PARAM));
         addParam(createParam<FlatKnob>(Vec(91, 262), module, HexNut::VRZ_PARAM));
-
-        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 10)), module, HexNut::CV_VRX_INPUT));
-        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 20)), module, HexNut::CV_VRY_INPUT));
-        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 30)), module, HexNut::CV_VRZ_INPUT));
-
-        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 40)), module, HexNut::CV_BLEND_INPUT));
 
         addParam(createParam<FlatKnob>(Vec(35, 318), module, HexNut::BLEND_PARAM));
         addParam(createParam<FlatKnob>(Vec(63, 318), module, HexNut::CROP_PARAM));
