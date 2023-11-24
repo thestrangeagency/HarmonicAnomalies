@@ -466,10 +466,8 @@ struct HexDisplay : LedDisplay
 
     void center(const DrawArgs &args)
     {
-        float offX = box.size.x / 2 - hex->tiles[0].x;
-        float offY = box.size.y / 2 - hex->tiles[0].y;
-
-        nvgTranslate(args.vg, offX, offY);
+        nvgTranslate(args.vg, 150, 4);
+        nvgRotate(args.vg, 3 * M_PI / 6);
     }
 
     void drawTile(const DrawArgs &args, Tile tile)
@@ -527,52 +525,84 @@ struct HexDisplay : LedDisplay
     }
 };
 
+struct FlatKnob : RoundKnob
+{
+    FlatKnob()
+    {
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/KnobFg.svg")));
+        bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/KnobBg.svg")));
+    }
+};
+
+struct FlatPort : app::SvgPort
+{
+    FlatPort()
+    {
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/JackIn.svg")));
+    }
+};
+
+struct FlatPortOut : app::SvgPort
+{
+    FlatPortOut()
+    {
+        setSvg(Svg::load(asset::plugin(pluginInstance, "res/JackOut.svg")));
+    }
+};
+
+struct FlatSwitch : app::SvgSwitch
+{
+    FlatSwitch()
+    {
+        shadow->opacity = 0.0;
+        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch_0.svg")));
+        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch_1.svg")));
+        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch_2.svg")));
+    }
+};
+
 struct HexNutWidget : ModuleWidget
 {
     HexNutWidget(HexNut *module)
     {
+        float tR = 12; // template radius
+
         setModule(module);
-        setPanel(createPanel(asset::plugin(pluginInstance, "res/HexNut.svg")));
+        setPanel(createPanel(asset::plugin(pluginInstance, "res/HexNutFlat.svg")));
 
-        addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-        addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-        addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-        addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        addParam(createParam<FlatKnob>(Vec(7, 234), module, HexNut::WRITE_RADIUS_PARAM));
+        addParam(createParam<FlatKnob>(Vec(119, 234), module, HexNut::READ_RADIUS_PARAM));
 
-        float top = 67.5;
+        addParam(createParamCentered<FlatSwitch>(Vec(7 + tR, 262 + tR), module, HexNut::WRITE_MODE_PARAM));
+        addParam(createParamCentered<FlatSwitch>(Vec(119 + tR, 262 + tR), module, HexNut::READ_MODE_PARAM));
 
-        addParam(createParamCentered<Trimpot>(mm2px(Vec(5, top + 2)), module, HexNut::WRITE_RADIUS_PARAM));
-        addParam(createParamCentered<Trimpot>(mm2px(Vec(25, top + 2)), module, HexNut::CROP_PARAM));
-        addParam(createParamCentered<Trimpot>(mm2px(Vec(45, top + 2)), module, HexNut::READ_RADIUS_PARAM));
+        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 10)), module, HexNut::CV_VWX_INPUT));
+        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 20)), module, HexNut::CV_VWY_INPUT));
+        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 30)), module, HexNut::CV_VWZ_INPUT));
 
-        addParam(createParamCentered<CKSSThreeHorizontal>(mm2px(Vec(15, top + 2)), module, HexNut::WRITE_MODE_PARAM));
-        addParam(createParamCentered<CKSSThreeHorizontal>(mm2px(Vec(35, top + 2)), module, HexNut::READ_MODE_PARAM));
+        addParam(createParam<FlatKnob>(Vec(35, 206), module, HexNut::VWX_PARAM));
+        addParam(createParam<FlatKnob>(Vec(35, 234), module, HexNut::VWY_PARAM));
+        addParam(createParam<FlatKnob>(Vec(35, 262), module, HexNut::VWZ_PARAM));
 
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 10)), module, HexNut::CV_VWX_INPUT));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 20)), module, HexNut::CV_VWY_INPUT));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 30)), module, HexNut::CV_VWZ_INPUT));
+        addParam(createParam<FlatKnob>(Vec(91, 206), module, HexNut::VRX_PARAM));
+        addParam(createParam<FlatKnob>(Vec(91, 234), module, HexNut::VRY_PARAM));
+        addParam(createParam<FlatKnob>(Vec(91, 262), module, HexNut::VRZ_PARAM));
 
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(20, top + 10)), module, HexNut::VWX_PARAM));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(20, top + 20)), module, HexNut::VWY_PARAM));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(20, top + 30)), module, HexNut::VWZ_PARAM));
+        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 10)), module, HexNut::CV_VRX_INPUT));
+        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 20)), module, HexNut::CV_VRY_INPUT));
+        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 30)), module, HexNut::CV_VRZ_INPUT));
 
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(30, top + 10)), module, HexNut::VRX_PARAM));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(30, top + 20)), module, HexNut::VRY_PARAM));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(30, top + 30)), module, HexNut::VRZ_PARAM));
+        // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 40)), module, HexNut::CV_BLEND_INPUT));
 
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 10)), module, HexNut::CV_VRX_INPUT));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 20)), module, HexNut::CV_VRY_INPUT));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(40, top + 30)), module, HexNut::CV_VRZ_INPUT));
+        addParam(createParam<FlatKnob>(Vec(35, 318), module, HexNut::BLEND_PARAM));
+        addParam(createParam<FlatKnob>(Vec(63, 318), module, HexNut::CROP_PARAM));
+        addParam(createParam<FlatKnob>(Vec(91, 318), module, HexNut::READ_RING_PARAM));
 
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 40)), module, HexNut::CV_BLEND_INPUT));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(20, top + 40)), module, HexNut::BLEND_PARAM));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(30, top + 40)), module, HexNut::READ_RING_PARAM));
+        addInput(createInputCentered<FlatPort>(Vec(7 + tR, 346 + tR), module, HexNut::INPUT_INPUT));
+        addOutput(createOutputCentered<FlatPortOut>(Vec(119 + tR, 346 + tR), module, HexNut::OUTPUT_OUTPUT));
 
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 50)), module, HexNut::INPUT_INPUT));
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(40, top + 50)), module, HexNut::OUTPUT_OUTPUT));
-
-        HexDisplay *display = createWidget<HexDisplay>(mm2px(Vec(0.0, 10)));
-        display->box.size = mm2px(Vec(50, 55));
+        HexDisplay *display = createWidget<HexDisplay>((Vec(0.0, 41 - 4)));
+        display->box.size = (Vec(150, 130 + 8));
         display->module = module;
         display->hex = &module->hex;
         display->moduleWidget = this;
