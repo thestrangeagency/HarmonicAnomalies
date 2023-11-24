@@ -550,6 +550,17 @@ struct FlatPortOut : app::SvgPort
     }
 };
 
+struct FlatSwitch : app::SvgSwitch
+{
+    FlatSwitch()
+    {
+        shadow->opacity = 0.0;
+        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch_0.svg")));
+        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch_1.svg")));
+        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch_2.svg")));
+    }
+};
+
 struct HexNutWidget : ModuleWidget
 {
     HexNutWidget(HexNut *module)
@@ -562,8 +573,8 @@ struct HexNutWidget : ModuleWidget
         addParam(createParam<FlatKnob>(Vec(7, 234), module, HexNut::WRITE_RADIUS_PARAM));
         addParam(createParam<FlatKnob>(Vec(119, 234), module, HexNut::READ_RADIUS_PARAM));
 
-        addParam(createParamCentered<NKK>(Vec(7 + tR, 262 + tR), module, HexNut::WRITE_MODE_PARAM));
-        addParam(createParamCentered<NKK>(Vec(119 + tR, 262 + tR), module, HexNut::READ_MODE_PARAM));
+        addParam(createParamCentered<FlatSwitch>(Vec(7 + tR, 262 + tR), module, HexNut::WRITE_MODE_PARAM));
+        addParam(createParamCentered<FlatSwitch>(Vec(119 + tR, 262 + tR), module, HexNut::READ_MODE_PARAM));
 
         // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 10)), module, HexNut::CV_VWX_INPUT));
         // addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, top + 20)), module, HexNut::CV_VWY_INPUT));
