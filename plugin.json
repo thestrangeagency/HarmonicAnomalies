@@ -1,31 +1,29 @@
 {
-  "slug": "HarmonicAnomalies",
-  "name": "HarmonicAnomalies",
-  "version": "2.0.0",
-  "license": "GPL-3.0-or-later",
-  "brand": "The Strange Agency",
-  "author": "Lucas Kuzma",
-  "authorEmail": "hello@strange.agency",
-  "authorUrl": "the.strange.agency",
-  "pluginUrl": "strange.software",
-  "manualUrl": "",
-  "sourceUrl": "",
-  "donateUrl": "",
-  "changelogUrl": "",
-  "modules": [
-    {
-      "slug": "HexNut",
-      "name": "HexNut",
-      "description": "",
-      "tags": [
-        "Sampler"
-      ]
-    },
-    {
-      "slug": "HexExCV",
-      "name": "HexNut CV Expander",
-      "description": "",
-      "tags": []
-    }
-  ]
+	"slug": "HarmonicAnomalies",
+	"name": "Harmonic Anomalies",
+	"version": "2.0.0",
+	"license": "GPL-3.0-or-later",
+	"brand": "The Strange Agency",
+	"author": "Lucas Kuzma",
+	"authorEmail": "hello@strange.agency",
+	"authorUrl": "the.strange.agency",
+	"pluginUrl": "https://github.com/thestrangeagency/HarmonicAnomalies",
+	"manualUrl": "https://github.com/thestrangeagency/HarmonicAnomalies",
+	"sourceUrl": "https://github.com/thestrangeagency/HarmonicAnomalies",
+	"donateUrl": "",
+	"changelogUrl": "",
+	"modules": [
+		{
+			"slug": "HexNut",
+			"name": "HexNut",
+			"description": "Three dimensional looper.",
+			"tags": ["Sampler"]
+		},
+		{
+			"slug": "HexExCV",
+			"name": "HexNut CV Expander",
+			"description": "Parameter voltage control.",
+			"tags": []
+		}
+	]
 }
