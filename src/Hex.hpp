@@ -14,12 +14,12 @@ struct Tile
 
 struct Hex
 {
-    const float size = .5;
-    const float dx = size * 3 / 2;
-    const float dy = size * sqrt(3);
-
     int radius;
     int diameter;
+
+    float size;
+    float dx;
+    float dy;
 
     float width;
     float height;
@@ -88,15 +88,20 @@ struct Hex
 
     void initGeometry()
     {
+        size = .5 * 86 / radius;
+        dx = size * 3 / 2;
+        dy = size * sqrt(3);
+
         diameter = radius * 2;
 
         width = diameter * dx;
         height = diameter * dy;
 
         yAxis = 3 * radius - 2;
-        length = pow(radius, 3) - pow(radius - 1, 3);
+
         // 721 if radius = 16
         // 21931 if radius = 86
+        length = pow(radius, 3) - pow(radius - 1, 3);
 
         readLength = length;
         writeLength = length;
