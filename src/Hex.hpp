@@ -144,14 +144,14 @@ struct Hex
         readLength = writeLength = pow(r, 3) - pow(r - 1, 3);
     }
 
-    void setVoltage(float v, float blend)
+    virtual void setVoltage(float v, float blend)
     {
         blend = clamp(blend, 0.0, 1.0);
         tiles[writeCursor].v = v * blend + tiles[writeCursor].v * (1.0 - blend);
         tiles[writeCursor].writ = 1;
     }
 
-    float getVoltage()
+    virtual float getVoltage()
     {
         return ringRadius < 1 ? getTileVoltage(readCursor) : getRingVoltage();
     }
@@ -216,7 +216,7 @@ struct Hex
         }
     }
 
-    void advanceWriteCursor(float x, float y, float z)
+    virtual void advanceWriteCursor(float x, float y, float z)
     {
         writeX += x;
         writeY += y;
@@ -252,7 +252,7 @@ struct Hex
         writeCursor = wrap(writeVectorCursor + writeRingCursor, writeLength);
     }
 
-    void advanceReadCursor(float x, float y, float z)
+    virtual void advanceReadCursor(float x, float y, float z)
     {
         readX += x;
         readY += y;
