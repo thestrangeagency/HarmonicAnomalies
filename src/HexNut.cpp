@@ -38,7 +38,7 @@ struct HexNut : Module
         LIGHTS_LEN
     };
 
-    Hex hex;
+    Hex hex = Hex(86);
     float lastReadRingRadius = 0;
     float lastCrop = 1;
 
@@ -68,7 +68,6 @@ struct HexNut : Module
         configOutput(OUTPUT_OUTPUT, "Signal");
     }
 
-    /* ==================================================================== */
     /* ==================================================================== */
     /* ==================================================================== */
 
@@ -153,6 +152,9 @@ struct HexNut : Module
 
         hex.advanceReadCursor(rx, ry, rz);
     }
+
+    /* ==================================================================== */
+    /* ==================================================================== */
 };
 
 struct HexDisplay : LedDisplay
@@ -294,7 +296,7 @@ Model *modelHexNut = createModel<HexNut, HexNutWidget>("HexNut");
 
 struct HexaGrain : HexNut
 {
-    GrainHex hex;
+    GrainHex hex = GrainHex(16);
 };
 
 Model *modelHexaGrain = createModel<HexaGrain, HexNutWidget>("HexaGrain");

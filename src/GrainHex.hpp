@@ -2,106 +2,80 @@
 
 #define MAX_GRAIN_SIZE 4410
 
-struct GrainTile : Tile
+struct Grain
 {
-    struct Grain
-    {
-        float buffer[MAX_GRAIN_SIZE];
-        int size = MAX_GRAIN_SIZE;
-        int writeIndex = 0;
-        int readIndex = 0;
-
-        void setVoltage(float v, float blend)
-        {
-            buffer[writeIndex] = v * blend + buffer[writeIndex] * (1.0 - blend);
-            ++writeIndex %= size;
-        }
-
-        float getVoltage()
-        {
-            float voltage = buffer[readIndex];
-            ++readIndex %= size;
-            return voltage;
-        }
-
-        bool atWriteStart()
-        {
-            return writeIndex == 0;
-        }
-
-        bool atReadStart()
-        {
-            return readIndex == 0;
-        }
-    };
-
-    Grain grain;
+    float buffer[MAX_GRAIN_SIZE];
+    int size = MAX_GRAIN_SIZE;
+    int writeIndex = 0;
+    int readIndex = 0;
 
     void setVoltage(float v, float blend)
     {
-        grain.setVoltage(v, blend);
-        writ = 1;
+        buffer[writeIndex] = v * blend + buffer[writeIndex] * (1.0 - blend);
+        ++writeIndex %= size;
     }
 
     float getVoltage()
     {
-        return grain.getVoltage();
+        float voltage = buffer[readIndex];
+        ++readIndex %= size;
+        return voltage;
     }
 
     bool atWriteStart()
     {
-        return grain.atWriteStart();
+        return writeIndex == 0;
     }
 
     bool atReadStart()
     {
-        return grain.atReadStart();
+        return readIndex == 0;
     }
 };
 
 struct GrainHex : Hex
 {
-    const int radius = 16;
+    std::vector<Grain> grains;
 
-    std::vector<GrainTile> tiles;
+    Grain *writeGrain;
+    Grain *readGrain;
 
-    GrainTile *writeTile;
-    GrainTile *readTile;
-
-    GrainHex() : Hex()
+    GrainHex(int r) : Hex(r)
     {
-        writeTile = &tiles[writeCursor];
-        readTile = &tiles[readCursor];
+        grains.resize(length);
+
+        writeGrain = &grains[writeCursor];
+        readGrain = &grains[readCursor];
     }
 
     void setVoltage(float v, float blend)
     {
-        writeTile->setVoltage(v, blend);
+        writeGrain->setVoltage(v, blend);
     }
 
     float getVoltage()
     {
         // ignoring read ring for now
-        return readTile->getVoltage();
+        return readGrain->getVoltage();
     }
 
     void advanceWriteCursor(float x, float y, float z)
     {
         // do nothing unless at start of a grain
-        if (writeTile->atWriteStart())
+        if (writeGrain->atWriteStart())
         {
             Hex::advanceWriteCursor(x, y, z);
-            writeTile = &tiles[writeCursor];
+            writeGrain = &grains[writeCursor];
         }
     }
 
     void advanceReadCursor(float x, float y, float z)
     {
         // do nothing unless at start of a grain
-        if (readTile->atReadStart())
+        if (readGrain->atReadStart())
         {
             Hex::advanceReadCursor(x, y, z);
-            readTile = &tiles[readCursor];
+            readGrain = &grains[readCursor];
         }
     }
 };

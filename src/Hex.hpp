@@ -18,17 +18,20 @@ struct Hex
     const float dx = size * 3 / 2;
     const float dy = size * sqrt(3);
 
-    const int radius = 86;
-    const int diameter = radius * 2;
+    int radius;
+    int diameter;
 
-    const float width = diameter * dx;
-    const float height = diameter * dy;
+    float width;
+    float height;
 
-    const int yAxis = 3 * radius - 2;
-    const int length = pow(radius, 3) - pow(radius - 1, 3); // 21931 if radius = 86
+    int yAxis;
+    int length;
 
-    int readLength = length;
-    int writeLength = length;
+    int readLength;
+    int writeLength;
+
+    int y_step;
+    int z_step;
 
     std::vector<Tile> tiles;
 
@@ -46,13 +49,10 @@ struct Hex
     float readY = 0;
     float readZ = 0;
 
-    int y_step = yAxis;
-    int z_step = y_step + 1;
-
     int ringRadius = 0; // radius of ring around cursor
     int maxRingRadius = 64;
-    std::vector<int> ringDirs = {-1, -z_step, -y_step, 1, z_step, y_step}; // directions around a ring
-    std::vector<int> ringOffsets;                                          // given a radius, offsets from cursor to ring around cursor
+    std::vector<int> ringDirs;    // directions around a ring
+    std::vector<int> ringOffsets; // given a radius, offsets from cursor to ring around cursor
 
     enum Mode
     {
@@ -70,21 +70,48 @@ struct Hex
     Mode writeMode = Mode::VECTOR;
     Mode readMode = Mode::VECTOR;
 
-    int writePosRingRadius = radius / 2;
+    int writePosRingRadius;
     int writePosRingDir = 0;
     int writePosRingStep = 0;
-    int writeMaxRadius = radius;
+    int writeMaxRadius;
 
-    int readPosRingRadius = radius / 2;
+    int readPosRingRadius;
     int readPosRingDir = 0;
     int readPosRingStep = 0;
-    int readMaxRadius = radius;
+    int readMaxRadius;
 
-    Hex()
+    Hex(int r) : radius(r)
     {
-        tiles.resize(length);
-        ringOffsets.resize(maxRingRadius * 6);
+        initGeometry();
         initTiles();
+    }
+
+    void initGeometry()
+    {
+        diameter = radius * 2;
+
+        width = diameter * dx;
+        height = diameter * dy;
+
+        yAxis = 3 * radius - 2;
+        length = pow(radius, 3) - pow(radius - 1, 3);
+        // 721 if radius = 16
+        // 21931 if radius = 86
+
+        readLength = length;
+        writeLength = length;
+
+        y_step = yAxis;
+        z_step = y_step + 1;
+
+        ringDirs = {-1, -z_step, -y_step, 1, z_step, y_step};
+        ringOffsets.resize(maxRingRadius * 6);
+
+        writePosRingRadius = radius / 2;
+        writeMaxRadius = radius;
+
+        readPosRingRadius = radius / 2;
+        readMaxRadius = radius;
     }
 
     int voltageToRadius(float v)
@@ -256,7 +283,6 @@ struct Hex
         readCursor = wrap(readVectorCursor + readRingCursor, readLength);
     }
 
-private:
     int wrap(int x, int wrapLength)
     {
         while (x < 0)
@@ -267,6 +293,8 @@ private:
 
     void initTiles()
     {
+        tiles.resize(length);
+
         for (int i = 0; i < length; ++i)
         {
             std::array<float, 2> c = coordAt(i);
