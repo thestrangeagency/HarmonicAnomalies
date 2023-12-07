@@ -57,50 +57,42 @@ struct GrainHex : Hex
 {
     std::vector<Grain> grains;
 
-    Grain *writeGrain;
-    Grain *readGrain;
-
     GrainHex(int r) : Hex(r)
     {
         grains.resize(length);
-
-        writeGrain = &grains[writeCursor];
-        readGrain = &grains[readCursor];
     }
 
     void setVoltage(float v, float blend) override
     {
-        writeGrain->setVoltage(v, blend);
+        grains[writeCursor].setVoltage(v, blend);
     }
 
     float getVoltage() override
     {
         // ignoring read ring for now
-        return readGrain->getVoltage();
+        return grains[readCursor].getVoltage();
     }
 
     void advanceWriteCursor(float x, float y, float z) override
     {
         // do nothing unless at start of a grain
-        if (writeGrain->atWriteStart())
+        if (grains[writeCursor].atWriteStart())
         {
             tiles[writeCursor].writ = 1;
-            tiles[writeCursor].v = writeGrain->getAverageVoltage();
+            tiles[writeCursor].v = grains[writeCursor].getAverageVoltage();
 
             Hex::advanceWriteCursor(x, y, z);
-            writeGrain = &grains[writeCursor];
         }
     }
 
     void advanceReadCursor(float x, float y, float z) override
     {
         // do nothing unless at start of a grain
-        if (readGrain->atReadStart())
+        if (grains[readCursor].atReadStart())
         {
             tiles[readCursor].read = 1;
 
             Hex::advanceReadCursor(x, y, z);
-            readGrain = &grains[readCursor];
         }
     }
 };
