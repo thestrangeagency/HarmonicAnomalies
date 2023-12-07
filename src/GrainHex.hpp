@@ -23,6 +23,16 @@ struct GrainTile : Tile
             ++readIndex %= size;
             return voltage;
         }
+
+        bool atWriteStart()
+        {
+            return writeIndex == 0;
+        }
+
+        bool atReadStart()
+        {
+            return readIndex == 0;
+        }
     };
 
     Grain grain;
@@ -37,13 +47,23 @@ struct GrainTile : Tile
     {
         return grain.getVoltage();
     }
+
+    bool atWriteStart()
+    {
+        return grain.atWriteStart();
+    }
+
+    bool atReadStart()
+    {
+        return grain.atReadStart();
+    }
 };
 
 struct GrainHex : Hex
 {
     const int radius = 16;
 
-    GrainTile *writeTile; // TODO queue up next tile for xFade
+    GrainTile *writeTile;
     GrainTile *readTile;
 
     GrainHex() : Hex()
@@ -55,5 +75,25 @@ struct GrainHex : Hex
     void setVoltage(float v, float blend)
     {
         writeTile->setVoltage(v, blend);
+    }
+
+    void advanceWriteCursor(float x, float y, float z)
+    {
+        // do nothing unless at start of a grain
+        if (writeTile->atWriteStart())
+        {
+            Hex::advanceWriteCursor(x, y, z);
+            writeTile = &tiles[writeCursor];
+        }
+    }
+
+    void advanceReadCursor(float x, float y, float z)
+    {
+        // do nothing unless at start of a grain
+        if (readTile->atReadStart())
+        {
+            Hex::advanceReadCursor(x, y, z);
+            readTile = &tiles[readCursor];
+        }
     }
 };
