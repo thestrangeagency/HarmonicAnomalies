@@ -73,10 +73,14 @@ struct HexNut : Module
 
     void process(const ProcessArgs &args) override
     {
+        // modes
+
         float w_mode_v = params[WRITE_MODE_PARAM].getValue();
         float r_mode_v = params[READ_MODE_PARAM].getValue();
         hex.writeMode = hex.floatToMode(w_mode_v);
         hex.readMode = hex.floatToMode(r_mode_v);
+
+        // crop
 
         float crop_v = params[CROP_PARAM].getValue();
         if (crop_v != lastCrop)
@@ -111,16 +115,12 @@ struct HexNut : Module
             cv_blend_v = expander->getInput(HexExCV::CV_BLEND_INPUT).getVoltage() * cv_scale;
         }
 
-        // end expander
+        // rings
 
         float w_r_v = params[WRITE_RADIUS_PARAM].getValue() + cv_write_size_v;
         float r_r_v = params[READ_RADIUS_PARAM].getValue() + cv_read_size_v;
         hex.setWriteMaxRadius(w_r_v);
         hex.setReadMaxRadius(r_r_v);
-
-        float in_v = inputs[INPUT_INPUT].getVoltage();
-        float blend_v = params[BLEND_PARAM].getValue() + cv_blend_v;
-        hex.setVoltage(in_v, blend_v);
 
         float read_ring_radius_v = params[READ_RING_PARAM].getValue();
         if (read_ring_radius_v != lastReadRingRadius)
@@ -130,7 +130,15 @@ struct HexNut : Module
             lastReadRingRadius = read_ring_radius_v;
         }
 
+        // i/o
+
+        float in_v = inputs[INPUT_INPUT].getVoltage();
+        float blend_v = params[BLEND_PARAM].getValue() + cv_blend_v;
+        hex.setVoltage(in_v, blend_v);
+
         outputs[OUTPUT_OUTPUT].setVoltage(hex.getVoltage());
+
+        // cursors
 
         float wx = params[VWX_PARAM].getValue() + cv_vwx_v;
         float wy = params[VWY_PARAM].getValue() + cv_vwy_v;
