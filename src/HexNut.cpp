@@ -38,12 +38,16 @@ struct HexNut : Module
         LIGHTS_LEN
     };
 
-    Hex hex = Hex(86);
+    Hex _hex = Hex(86);
+    virtual Hex *getHex() { return &_hex; }
+
     float lastReadRingRadius = 0;
     float lastCrop = 1;
 
     HexNut()
     {
+        Hex *hex = getHex();
+
         config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 
         configParam(WRITE_MODE_PARAM, 1.f, 3.f, 1.f, "Write Mode");
@@ -61,7 +65,7 @@ struct HexNut : Module
         configParam(VRZ_PARAM, -1.f, 1.f, 0.f, "Read z");
 
         configParam(BLEND_PARAM, 0.f, 1.f, 1.f, "Blend");
-        configParam(READ_RING_PARAM, 0.f, hex.maxRingRadius, 0.f, "Read Ring Radius");
+        configParam(READ_RING_PARAM, 0.f, hex->maxRingRadius, 0.f, "Read Ring Radius");
         configParam(CROP_PARAM, 0.f, 1.f, 1.f, "Crop");
 
         configInput(INPUT_INPUT, "Signal");
@@ -73,19 +77,21 @@ struct HexNut : Module
 
     void process(const ProcessArgs &args) override
     {
+        Hex *hex = getHex();
+
         // modes
 
         float w_mode_v = params[WRITE_MODE_PARAM].getValue();
         float r_mode_v = params[READ_MODE_PARAM].getValue();
-        hex.writeMode = hex.floatToMode(w_mode_v);
-        hex.readMode = hex.floatToMode(r_mode_v);
+        hex->writeMode = hex->floatToMode(w_mode_v);
+        hex->readMode = hex->floatToMode(r_mode_v);
 
         // crop
 
         float crop_v = params[CROP_PARAM].getValue();
         if (crop_v != lastCrop)
         {
-            hex.setCrop(crop_v);
+            hex->setCrop(crop_v);
             lastCrop = crop_v;
         }
 
@@ -119,14 +125,14 @@ struct HexNut : Module
 
         float w_r_v = params[WRITE_RADIUS_PARAM].getValue() + cv_write_size_v;
         float r_r_v = params[READ_RADIUS_PARAM].getValue() + cv_read_size_v;
-        hex.setWriteMaxRadius(w_r_v);
-        hex.setReadMaxRadius(r_r_v);
+        hex->setWriteMaxRadius(w_r_v);
+        hex->setReadMaxRadius(r_r_v);
 
         float read_ring_radius_v = params[READ_RING_PARAM].getValue();
         if (read_ring_radius_v != lastReadRingRadius)
         {
-            hex.ringRadius = round(read_ring_radius_v);
-            hex.updateReadRingOffsets();
+            hex->ringRadius = round(read_ring_radius_v);
+            hex->updateReadRingOffsets();
             lastReadRingRadius = read_ring_radius_v;
         }
 
@@ -134,9 +140,9 @@ struct HexNut : Module
 
         float in_v = inputs[INPUT_INPUT].getVoltage();
         float blend_v = params[BLEND_PARAM].getValue() + cv_blend_v;
-        hex.setVoltage(in_v, blend_v);
+        hex->setVoltage(in_v, blend_v);
 
-        outputs[OUTPUT_OUTPUT].setVoltage(hex.getVoltage());
+        outputs[OUTPUT_OUTPUT].setVoltage(hex->getVoltage());
 
         // cursors
 
@@ -144,13 +150,13 @@ struct HexNut : Module
         float wy = params[VWY_PARAM].getValue() + cv_vwy_v;
         float wz = params[VWZ_PARAM].getValue() + cv_vwz_v;
 
-        hex.advanceWriteCursor(wx, wy, wz);
+        hex->advanceWriteCursor(wx, wy, wz);
 
         float rx = params[VRX_PARAM].getValue() + cv_vrx_v;
         float ry = params[VRY_PARAM].getValue() + cv_vry_v;
         float rz = params[VRZ_PARAM].getValue() + cv_vrz_v;
 
-        hex.advanceReadCursor(rx, ry, rz);
+        hex->advanceReadCursor(rx, ry, rz);
     }
 
     /* ==================================================================== */
@@ -286,7 +292,7 @@ struct HexNutWidget : ModuleWidget
         HexDisplay *display = createWidget<HexDisplay>((Vec(0.0, 41 - 4)));
         display->box.size = (Vec(150, 130 + 8));
         display->module = module;
-        display->hex = &module->hex;
+        display->hex = module->getHex();
         display->moduleWidget = this;
         addChild(display);
     }
@@ -296,7 +302,8 @@ Model *modelHexNut = createModel<HexNut, HexNutWidget>("HexNut");
 
 struct HexaGrain : HexNut
 {
-    GrainHex hex = GrainHex(16);
+    GrainHex _hex = GrainHex(16);
+    GrainHex *getHex() override { return &_hex; }
 };
 
 Model *modelHexaGrain = createModel<HexaGrain, HexNutWidget>("HexaGrain");
