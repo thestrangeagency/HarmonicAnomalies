@@ -1,5 +1,6 @@
 #include "plugin.hpp"
 #include "Hex.hpp"
+#include "GrainHex.hpp"
 #include "UI.hpp"
 #include "HexExCV.hpp"
 
@@ -290,3 +291,10 @@ struct HexNutWidget : ModuleWidget
 };
 
 Model *modelHexNut = createModel<HexNut, HexNutWidget>("HexNut");
+
+struct HexaGrain : HexNut
+{
+    GrainHex hex;
+};
+
+Model *modelHexaGrain = createModel<HexaGrain, HexNutWidget>("HexaGrain");

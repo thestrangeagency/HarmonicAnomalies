@@ -63,6 +63,8 @@ struct GrainHex : Hex
 {
     const int radius = 16;
 
+    std::vector<GrainTile> tiles;
+
     GrainTile *writeTile;
     GrainTile *readTile;
 
@@ -75,6 +77,12 @@ struct GrainHex : Hex
     void setVoltage(float v, float blend)
     {
         writeTile->setVoltage(v, blend);
+    }
+
+    float getVoltage()
+    {
+        // ignoring read ring for now
+        return readTile->getVoltage();
     }
 
     void advanceWriteCursor(float x, float y, float z)

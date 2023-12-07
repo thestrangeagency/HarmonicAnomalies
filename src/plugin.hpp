@@ -9,3 +9,4 @@ extern Plugin *pluginInstance;
 // Declare each Model, defined in each module source file
 extern Model *modelHexNut;
 extern Model *modelHexExCV;
+extern Model *modelHexaGrain;
