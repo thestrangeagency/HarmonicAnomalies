@@ -67,10 +67,16 @@ struct GrainHex : Hex
         grains[writeCursor].setVoltage(v, blend);
     }
 
-    float getVoltage() override
+    // float getVoltage() override
+    // {
+    //     // ignoring read ring for now
+    //     return grains[readCursor].getVoltage();
+    // }
+
+    float getTileVoltage(int i) override
     {
-        // ignoring read ring for now
-        return grains[readCursor].getVoltage();
+        tiles[i].read = 1;
+        return grains[i].getVoltage();
     }
 
     void advanceWriteCursor(float x, float y, float z) override
@@ -90,8 +96,6 @@ struct GrainHex : Hex
         // do nothing unless at start of a grain
         if (grains[readCursor].atReadStart())
         {
-            tiles[readCursor].read = 1;
-
             Hex::advanceReadCursor(x, y, z);
         }
     }

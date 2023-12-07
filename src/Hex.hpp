@@ -151,12 +151,12 @@ struct Hex
         tiles[writeCursor].writ = 1;
     }
 
-    virtual float getVoltage()
+    float getVoltage()
     {
         return ringRadius < 1 ? getTileVoltage(readCursor) : getRingVoltage();
     }
 
-    float getTileVoltage(int i)
+    virtual float getTileVoltage(int i)
     {
         tiles[i].read = 1;
         return tiles[i].v;
@@ -164,7 +164,7 @@ struct Hex
 
     float getRingVoltage()
     {
-        float voltage = 0;
+        float voltage = getTileVoltage(readCursor);
 
         for (const auto &offset : ringOffsets)
         {
@@ -193,12 +193,12 @@ struct Hex
 
     Tile getReadTileAtOffset(int offset)
     {
-        return getTile(readCursor + offset);
+        return getTile(getReadIndexAtOffset(offset));
     }
 
     int getReadIndexAtOffset(int offset)
     {
-        return wrap(readCursor, readLength);
+        return wrap(readCursor + offset, readLength);
     }
 
     void updateReadRingOffsets()

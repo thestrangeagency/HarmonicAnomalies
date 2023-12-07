@@ -226,15 +226,6 @@ struct HexDisplay : LedDisplay
         drawTile(args, tile);
     }
 
-    void drawReadRing(const DrawArgs &args)
-    {
-        for (const auto &offset : hex->ringOffsets)
-        {
-            Tile tile = hex->getReadTileAtOffset(offset);
-            hexagon(args.vg, tile.x, tile.y, hex->size, nvgRGBA(0, 0, 255, 255));
-        }
-    }
-
     void drawReadCursor(const DrawArgs &args)
     {
         int readCursor = hex->readCursor;
@@ -250,7 +241,6 @@ struct HexDisplay : LedDisplay
             center(args);
             drawTiles(args);
             drawWriteCursor(args);
-            drawReadRing(args);
             drawReadCursor(args);
         }
 
