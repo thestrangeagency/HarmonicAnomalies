@@ -39,6 +39,7 @@ struct HexNut : Module
     };
 
     Hex _hex = Hex(86);
+    Hex *hex;
     virtual Hex *getHex() { return &_hex; }
 
     float lastReadRingRadius = 0;
@@ -46,7 +47,7 @@ struct HexNut : Module
 
     HexNut()
     {
-        Hex *hex = getHex();
+        hex = getHex();
 
         config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 
@@ -77,8 +78,6 @@ struct HexNut : Module
 
     void process(const ProcessArgs &args) override
     {
-        Hex *hex = getHex();
-
         // modes
 
         float w_mode_v = params[WRITE_MODE_PARAM].getValue();
@@ -292,7 +291,7 @@ struct HexNutWidget : ModuleWidget
         HexDisplay *display = createWidget<HexDisplay>((Vec(0.0, 41 - 4)));
         display->box.size = (Vec(150, 130 + 8));
         display->module = module;
-        display->hex = module->getHex();
+        display->hex = module->hex;
         display->moduleWidget = this;
         addChild(display);
     }
@@ -304,6 +303,11 @@ struct HexaGrain : HexNut
 {
     GrainHex _hex = GrainHex(16);
     GrainHex *getHex() override { return &_hex; }
+
+    HexaGrain()
+    {
+        hex = getHex();
+    }
 };
 
 Model *modelHexaGrain = createModel<HexaGrain, HexNutWidget>("HexaGrain");
