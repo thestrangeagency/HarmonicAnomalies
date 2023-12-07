@@ -12,6 +12,7 @@ struct HexNut : Module
         READ_MODE_PARAM,
         WRITE_RADIUS_PARAM,
         READ_RADIUS_PARAM,
+        GRAIN_SIZE_PARAM, // this is lame, but C++
         VWX_PARAM,
         VWY_PARAM,
         VWZ_PARAM,
@@ -300,7 +301,25 @@ struct HexaGrain : HexNut
     HexaGrain()
     {
         hex = getHex();
+
+        configParam(GRAIN_SIZE_PARAM, 0.f, 1.f, 1.f, "Write Grain Size");
+    }
+
+    void process(const ProcessArgs &args) override
+    {
+        HexNut::process(args);
+
+        float grain_size_v = params[GRAIN_SIZE_PARAM].getValue();
+        hex->setSize(grain_size_v);
     }
 };
 
-Model *modelHexaGrain = createModel<HexaGrain, HexNutWidget>("HexaGrain");
+struct HexaGrainWidget : HexNutWidget
+{
+    HexaGrainWidget(HexaGrain *module) : HexNutWidget(module)
+    {
+        addParam(createParam<FlatKnob>(Vec(7, 206), module, HexNut::GRAIN_SIZE_PARAM));
+    }
+};
+
+Model *modelHexaGrain = createModel<HexaGrain, HexaGrainWidget>("HexaGrain");

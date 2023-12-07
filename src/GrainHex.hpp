@@ -1,5 +1,6 @@
 #include "Hex.hpp"
 
+#define MIN_GRAIN_SIZE 44
 #define MAX_GRAIN_SIZE 4410
 #define AVERAGE_SIZE 128
 
@@ -51,6 +52,14 @@ struct Grain
     {
         return readIndex == 0;
     }
+
+    void setSize(float newSize)
+    {
+        int intSize = MAX_GRAIN_SIZE * newSize;
+        size = clamp(intSize, MIN_GRAIN_SIZE, MAX_GRAIN_SIZE);
+        writeIndex %= size;
+        readIndex %= size;
+    }
 };
 
 struct GrainHex : Hex
@@ -98,5 +107,10 @@ struct GrainHex : Hex
         {
             Hex::advanceReadCursor(x, y, z);
         }
+    }
+
+    void setSize(float size) override
+    {
+        grains[writeCursor].setSize(size);
     }
 };

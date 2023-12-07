@@ -144,6 +144,11 @@ struct Hex
         readLength = writeLength = pow(r, 3) - pow(r - 1, 3);
     }
 
+    virtual void setSize(float newSize)
+    {
+        // this one is for the children
+    }
+
     virtual void setVoltage(float v, float blend)
     {
         blend = clamp(blend, 0.0, 1.0);
