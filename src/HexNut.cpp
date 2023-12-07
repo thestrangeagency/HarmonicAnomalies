@@ -278,12 +278,15 @@ struct HexNutWidget : ModuleWidget
         addInput(createInputCentered<FlatPort>(Vec(7 + tR, 346 + tR), module, HexNut::INPUT_INPUT));
         addOutput(createOutputCentered<FlatPortOut>(Vec(119 + tR, 346 + tR), module, HexNut::OUTPUT_OUTPUT));
 
-        HexDisplay *display = createWidget<HexDisplay>((Vec(0.0, 41 - 4)));
-        display->box.size = (Vec(150, 130 + 8));
-        display->module = module;
-        display->hex = module->hex;
-        display->moduleWidget = this;
-        addChild(display);
+        if (module != nullptr && module->hex != nullptr)
+        {
+            HexDisplay *display = createWidget<HexDisplay>((Vec(0.0, 41 - 4)));
+            display->box.size = (Vec(150, 130 + 8));
+            display->module = module;
+            display->hex = module->hex;
+            display->moduleWidget = this;
+            addChild(display);
+        }
     }
 };
 
