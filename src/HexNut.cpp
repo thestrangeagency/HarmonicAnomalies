@@ -239,7 +239,7 @@ struct HexDisplay : LedDisplay
     {
         int readCursor = hex->readCursor;
         Tile tile = hex->tiles[readCursor];
-        hexagon(args.vg, tile.x, tile.y, hex->size * 2, nvgRGBA(0, 255, 0, 255));
+        hexagon(args.vg, tile.x, tile.y, hex->size * 2, nvgRGBA(0, 0, 255, 255));
         drawTile(args, tile);
     }
 
