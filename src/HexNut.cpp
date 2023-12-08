@@ -191,10 +191,14 @@ struct HexDisplay : LedDisplay
 
     NVGcolor colorFromTile(Tile tile)
     {
-        float vNorm = abs(tile.v) / 5.0;
-        int r = fmin(255, round(128 * vNorm + 255 * tile.writ));
-        int g = 128 * vNorm;
-        int b = fmin(255, round(128 * vNorm + 255 * tile.read));
+        float vNorm = std::fabs(tile.v) / 5.0;
+        float vDB = 1.0 + std::log10(vNorm) * .5; // DB is *20 but this give us more brightness
+        vDB = clamp(vDB, 0.0, 1.0);
+
+        float vColor = 255 * vDB;
+        int r = fmin(255, round(vColor + 255 * tile.writ));
+        int g = vColor;
+        int b = fmin(255, round(vColor + 255 * tile.read));
         return nvgRGBA(r, g, b, 255);
     }
 
