@@ -1,3 +1,4 @@
+#pragma once
 #include <cmath>
 #include <algorithm>
 #include <array>
@@ -13,21 +14,24 @@ struct Tile
 
 struct Hex
 {
-    const float size = .5;
-    const float dx = size * 3 / 2;
-    const float dy = size * sqrt(3);
+    int radius;
+    int diameter;
 
-    const int radius = 86;
-    const int diameter = radius * 2;
+    float size;
+    float dx;
+    float dy;
 
-    const float width = diameter * dx;
-    const float height = diameter * dy;
+    float width;
+    float height;
 
-    const int yAxis = 3 * radius - 2;
-    const int length = pow(radius, 3) - pow(radius - 1, 3); // 21931 if radius = 86
+    int yAxis;
+    int length;
 
-    int readLength = length;
-    int writeLength = length;
+    int readLength;
+    int writeLength;
+
+    int y_step;
+    int z_step;
 
     std::vector<Tile> tiles;
 
@@ -45,13 +49,10 @@ struct Hex
     float readY = 0;
     float readZ = 0;
 
-    int y_step = yAxis;
-    int z_step = y_step + 1;
-
     int ringRadius = 0; // radius of ring around cursor
     int maxRingRadius = 64;
-    std::vector<int> ringDirs = {-1, -z_step, -y_step, 1, z_step, y_step}; // directions around a ring
-    std::vector<int> ringOffsets;                                          // given a radius, offsets from cursor to ring around cursor
+    std::vector<int> ringDirs;    // directions around a ring
+    std::vector<int> ringOffsets; // given a radius, offsets from cursor to ring around cursor
 
     enum Mode
     {
@@ -69,21 +70,53 @@ struct Hex
     Mode writeMode = Mode::VECTOR;
     Mode readMode = Mode::VECTOR;
 
-    int writePosRingRadius = radius / 2;
+    int writePosRingRadius;
     int writePosRingDir = 0;
     int writePosRingStep = 0;
-    int writeMaxRadius = radius;
+    int writeMaxRadius;
 
-    int readPosRingRadius = radius / 2;
+    int readPosRingRadius;
     int readPosRingDir = 0;
     int readPosRingStep = 0;
-    int readMaxRadius = radius;
+    int readMaxRadius;
 
-    Hex()
+    Hex(int r) : radius(r)
     {
-        tiles.resize(length);
-        ringOffsets.resize(maxRingRadius * 6);
+        initGeometry();
         initTiles();
+    }
+
+    void initGeometry()
+    {
+        size = .5 * 86 / radius;
+        dx = size * 3 / 2;
+        dy = size * sqrt(3);
+
+        diameter = radius * 2;
+
+        width = diameter * dx;
+        height = diameter * dy;
+
+        yAxis = 3 * radius - 2;
+
+        // 721 if radius = 16
+        // 21931 if radius = 86
+        length = pow(radius, 3) - pow(radius - 1, 3);
+
+        readLength = length;
+        writeLength = length;
+
+        y_step = yAxis;
+        z_step = y_step + 1;
+
+        ringDirs = {-1, -z_step, -y_step, 1, z_step, y_step};
+        ringOffsets.resize(maxRingRadius * 6);
+
+        writePosRingRadius = radius / 2;
+        writeMaxRadius = radius;
+
+        readPosRingRadius = radius / 2;
+        readMaxRadius = radius;
     }
 
     int voltageToRadius(float v)
@@ -111,7 +144,12 @@ struct Hex
         readLength = writeLength = pow(r, 3) - pow(r - 1, 3);
     }
 
-    void setVoltage(float v, float blend)
+    virtual void setSize(float newSize)
+    {
+        // this one is for the children
+    }
+
+    virtual void setVoltage(float v, float blend)
     {
         blend = clamp(blend, 0.0, 1.0);
         tiles[writeCursor].v = v * blend + tiles[writeCursor].v * (1.0 - blend);
@@ -123,7 +161,7 @@ struct Hex
         return ringRadius < 1 ? getTileVoltage(readCursor) : getRingVoltage();
     }
 
-    float getTileVoltage(int i)
+    virtual float getTileVoltage(int i)
     {
         tiles[i].read = 1;
         return tiles[i].v;
@@ -131,7 +169,7 @@ struct Hex
 
     float getRingVoltage()
     {
-        float voltage = 0;
+        float voltage = getTileVoltage(readCursor);
 
         for (const auto &offset : ringOffsets)
         {
@@ -160,12 +198,12 @@ struct Hex
 
     Tile getReadTileAtOffset(int offset)
     {
-        return getTile(readCursor + offset);
+        return getTile(getReadIndexAtOffset(offset));
     }
 
     int getReadIndexAtOffset(int offset)
     {
-        return wrap(readCursor, readLength);
+        return wrap(readCursor + offset, readLength);
     }
 
     void updateReadRingOffsets()
@@ -183,7 +221,7 @@ struct Hex
         }
     }
 
-    void advanceWriteCursor(float x, float y, float z)
+    virtual void advanceWriteCursor(float x, float y, float z)
     {
         writeX += x;
         writeY += y;
@@ -219,7 +257,7 @@ struct Hex
         writeCursor = wrap(writeVectorCursor + writeRingCursor, writeLength);
     }
 
-    void advanceReadCursor(float x, float y, float z)
+    virtual void advanceReadCursor(float x, float y, float z)
     {
         readX += x;
         readY += y;
@@ -255,7 +293,6 @@ struct Hex
         readCursor = wrap(readVectorCursor + readRingCursor, readLength);
     }
 
-private:
     int wrap(int x, int wrapLength)
     {
         while (x < 0)
@@ -266,6 +303,8 @@ private:
 
     void initTiles()
     {
+        tiles.resize(length);
+
         for (int i = 0; i < length; ++i)
         {
             std::array<float, 2> c = coordAt(i);
