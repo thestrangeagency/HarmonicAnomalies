@@ -192,7 +192,7 @@ struct HexDisplay : LedDisplay
     NVGcolor colorFromTile(Tile tile)
     {
         float vNorm = std::fabs(tile.v) / 5.0;
-        float vDB = 1.0 + std::log10(vNorm) * .5; // DB is *20 but this give us more brightness
+        float vDB = 1.0 + std::log10(vNorm) * .5; // DB is (* 20) but this give us more brightness
         vDB = clamp(vDB, 0.0, 1.0);
 
         float vColor = 255 * vDB;
@@ -257,7 +257,7 @@ struct HexNutWidget : ModuleWidget
 {
     HexNutWidget(HexNut *module)
     {
-        float tR = 12; // template radius
+        float tR = 12; // template param radius
 
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/HexNutFlat.svg")));
@@ -322,6 +322,8 @@ struct HexaGrainWidget : HexNutWidget
 {
     HexaGrainWidget(HexaGrain *module) : HexNutWidget(module)
     {
+        setPanel(createPanel(asset::plugin(pluginInstance, "res/HexaGrainFlat.svg")));
+
         addParam(createParam<FlatKnob>(Vec(7, 206), module, HexNut::GRAIN_SIZE_PARAM));
     }
 };
