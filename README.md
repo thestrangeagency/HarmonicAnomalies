@@ -8,9 +8,9 @@ Three dimensional looper.
 
 ### Donut Reborn
 
-Inspired by our [Donut™ app](https://www.youtube.com/watch?v=mITLz1rrSN0) from a decade ago, HexNut is a looping buffer, that can be accessed along different axes. By reading and writing along one axis, you can create loops, echoes, and the like. But venturing off-axis yields the truest grit.
+Inspired by our [Donut™ app](https://www.youtube.com/watch?v=mITLz1rrSN0) from a decade ago, HexNut is a looping buffer, that can be accessed along three different axes. By reading and writing along one axis, you can create loops, echoes, and the like. But venturing off-axis yields the truest grit.
 
-It is not three dimensional in the traditional sense, but it does present three axes across a hexagonal grid, making looping a bit bonkers, just how you like it.
+It is not three dimensional in the traditional sense, but it does present three axes across a hexagonal grid, making looping a bit bonkers, just how you like it. See a [video of HexNut in action here](https://vimeo.com/893993026).
 
 ### Controls
 
