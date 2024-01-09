@@ -1,4 +1,5 @@
 #include "plugin.hpp"
+#include "UI.hpp"
 
 #define MAX_COUNT 64.f
 
@@ -139,20 +140,19 @@ struct RepeatWidget : ModuleWidget
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Repeat.svg")));
 
-        addParam(createParamCentered<CKSS>(mm2px(Vec(15.24, 20)), module, Repeat::THROUGH_PARAM));
+        addParam(createParam<FlatKnob>(Vec(6, 66), module, Repeat::PERIOD_PARAM));
+        addChild(createLight<MediumLight<GreenLight>>(Vec(33, 66), module, Repeat::INPUT_COUNT_LIGHT));
 
-        addParam(createParamCentered<RoundBlackSnapKnob>(mm2px(Vec(15.24, 35)), module, Repeat::PERIOD_PARAM));
-        addParam(createParamCentered<RoundBlackSnapKnob>(mm2px(Vec(15.24, 50)), module, Repeat::REPEAT_PARAM));
-        addParam(createParamCentered<RoundBlackSnapKnob>(mm2px(Vec(15.24, 65)), module, Repeat::RESET_PERIOD_PARAM));
+        addParam(createParam<FlatKnob>(Vec(6, 122), module, Repeat::REPEAT_PARAM));
+        addChild(createLight<MediumLight<YellowLight>>(Vec(33, 122), module, Repeat::TRAIN_COUNT_LIGHT));
+        addParam(createParam<FlatKnob>(Vec(60, 122), module, Repeat::RESET_PERIOD_PARAM));
 
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(15.24, 105.32)), module, Repeat::CLOCK_INPUT));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(15.24, 77.544)), module, Repeat::RESET_INPUT));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(15.24, 91.432)), module, Repeat::PULSE_INPUT));
+        addInput(createInput<FlatPort>(Vec(6, 234), module, Repeat::CLOCK_INPUT));
+        addInput(createInput<FlatPort>(Vec(60, 234), module, Repeat::RESET_INPUT));
 
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(15.24, 119.208)), module, Repeat::PULSE_OUTPUT));
-
-        addChild(createLightCentered<MediumLight<GreenLight>>(mm2px(Vec(9.948, 21.992)), module, Repeat::INPUT_COUNT_LIGHT));
-        addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(20.532, 21.992)), module, Repeat::TRAIN_COUNT_LIGHT));
+        addInput(createInput<FlatPort>(Vec(6, 290), module, Repeat::PULSE_INPUT));
+        addParam(createParam<FlatBinary>(Vec(33, 290), module, Repeat::THROUGH_PARAM));
+        addOutput(createOutput<FlatPort>(Vec(60, 290), module, Repeat::PULSE_OUTPUT));
     }
 };
 
