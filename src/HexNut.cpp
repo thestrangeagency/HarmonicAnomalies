@@ -265,8 +265,8 @@ struct HexNutWidget : ModuleWidget
         addParam(createParam<FlatKnob>(Vec(7, 234), module, HexNut::WRITE_RADIUS_PARAM));
         addParam(createParam<FlatKnob>(Vec(119, 234), module, HexNut::READ_RADIUS_PARAM));
 
-        addParam(createParamCentered<FlatSwitch>(Vec(7 + tR, 262 + tR), module, HexNut::WRITE_MODE_PARAM));
-        addParam(createParamCentered<FlatSwitch>(Vec(119 + tR, 262 + tR), module, HexNut::READ_MODE_PARAM));
+        addParam(createParamCentered<FlatTrinary>(Vec(7 + tR, 262 + tR), module, HexNut::WRITE_MODE_PARAM));
+        addParam(createParamCentered<FlatTrinary>(Vec(119 + tR, 262 + tR), module, HexNut::READ_MODE_PARAM));
 
         addParam(createParam<FlatKnob>(Vec(35, 206), module, HexNut::VWX_PARAM));
         addParam(createParam<FlatKnob>(Vec(35, 234), module, HexNut::VWY_PARAM));

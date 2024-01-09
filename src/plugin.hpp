@@ -10,3 +10,4 @@ extern Plugin *pluginInstance;
 extern Model *modelHexNut;
 extern Model *modelHexExCV;
 extern Model *modelHexaGrain;
+extern Model *modelRepeat;

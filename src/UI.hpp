@@ -29,13 +29,23 @@ struct FlatPortOut : app::SvgPort
     }
 };
 
-struct FlatSwitch : app::SvgSwitch
+struct FlatBinary : app::SvgSwitch
 {
-    FlatSwitch()
+    FlatBinary()
     {
         shadow->opacity = 0.0;
-        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch_0.svg")));
-        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch_1.svg")));
-        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch_2.svg")));
+        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Binary_0.svg")));
+        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Binary_1.svg")));
+    }
+};
+
+struct FlatTrinary : app::SvgSwitch
+{
+    FlatTrinary()
+    {
+        shadow->opacity = 0.0;
+        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Trinary_0.svg")));
+        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Trinary_1.svg")));
+        addFrame(Svg::load(asset::plugin(pluginInstance, "res/Trinary_2.svg")));
     }
 };
