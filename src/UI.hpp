@@ -32,6 +32,14 @@ struct FlatKnob : RoundKnob
     }
 };
 
+struct FlatSnapKnob : FlatKnob
+{
+    FlatSnapKnob()
+    {
+        snap = true;
+    }
+};
+
 struct FlatPort : app::SvgPort
 {
     FlatPort()
