@@ -43,6 +43,7 @@ struct Repeat : Module
     };
     enum OutputId
     {
+        CHARGE_OUTPUT,
         PULSE_OUTPUT,
         OUTPUTS_LEN
     };
@@ -70,6 +71,7 @@ struct Repeat : Module
         configInput(PULSE_INPUT, "Pulse");
         configInput(ACTIVATE_INPUT, "Activate");
 
+        configOutput(CHARGE_OUTPUT, "Charge");
         configOutput(PULSE_OUTPUT, "Pulse");
     }
 
@@ -157,6 +159,8 @@ struct Repeat : Module
         bool pulse = pulseGenerator.process(args.sampleTime);
         outputs[PULSE_OUTPUT].setVoltage(pulse ? 10.0f : 0.0f);
 
+        outputs[CHARGE_OUTPUT].setVoltage(10.0f * float(inputCount) / period_v);
+
         lights[INPUT_COUNT_LIGHT].setBrightness(clamp(inputCount / period_v, 0.f, 1.f));
         lights[TRAIN_COUNT_LIGHT].setBrightness(clamp(pulseTrainCount / repeat_v, 0.f, 1.f));
         lights[ACTIVE_LIGHT].setBrightness(is_active ? 1.f : 0.f);
@@ -172,6 +176,7 @@ struct RepeatWidget : ModuleWidget
 
         addParam(createParam<FlatSnapKnob>(Vec(6, 66), module, Repeat::PERIOD_PARAM));
         addChild(createLight<FlatLight<YellowishLight>>(Vec(39, 72), module, Repeat::INPUT_COUNT_LIGHT));
+        addOutput(createOutput<FlatPort>(Vec(60, 66), module, Repeat::CHARGE_OUTPUT));
 
         addParam(createParam<FlatSnapKnob>(Vec(6, 122), module, Repeat::REPEAT_PARAM));
         addChild(createLight<FlatLight<YellowishLight>>(Vec(39, 128), module, Repeat::TRAIN_COUNT_LIGHT));
