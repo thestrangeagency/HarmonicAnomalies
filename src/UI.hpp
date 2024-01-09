@@ -1,6 +1,27 @@
 #pragma once
 #include "plugin.hpp"
 
+static const NVGcolor SCHEME_YELLOWISH = nvgRGB(0xE4, 0xEC, 0x8F);
+
+template <typename TBase = GrayModuleLightWidget>
+struct TYellowishLight : TBase
+{
+    TYellowishLight()
+    {
+        this->addBaseColor(SCHEME_YELLOWISH);
+    }
+};
+using YellowishLight = TYellowishLight<>;
+
+template <typename TBase>
+struct FlatLight : TSvgLight<TBase>
+{
+    FlatLight()
+    {
+        this->setSvg(Svg::load(asset::plugin(pluginInstance, "res/Light.svg")));
+    }
+};
+
 struct FlatKnob : RoundKnob
 {
     FlatKnob()

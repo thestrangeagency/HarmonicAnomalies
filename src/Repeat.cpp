@@ -140,11 +140,13 @@ struct RepeatWidget : ModuleWidget
         setModule(module);
         setPanel(createPanel(asset::plugin(pluginInstance, "res/Repeat.svg")));
 
+        float lr = 6; // light radius
+
         addParam(createParam<FlatKnob>(Vec(6, 66), module, Repeat::PERIOD_PARAM));
-        addChild(createLight<MediumLight<GreenLight>>(Vec(33, 66), module, Repeat::INPUT_COUNT_LIGHT));
+        addChild(createLight<FlatLight<YellowishLight>>(Vec(45 - lr, 78 - lr), module, Repeat::INPUT_COUNT_LIGHT));
 
         addParam(createParam<FlatKnob>(Vec(6, 122), module, Repeat::REPEAT_PARAM));
-        addChild(createLight<MediumLight<YellowLight>>(Vec(33, 122), module, Repeat::TRAIN_COUNT_LIGHT));
+        addChild(createLight<FlatLight<YellowishLight>>(Vec(45 - lr, 134 - lr), module, Repeat::TRAIN_COUNT_LIGHT));
         addParam(createParam<FlatKnob>(Vec(60, 122), module, Repeat::RESET_PERIOD_PARAM));
 
         addInput(createInput<FlatPort>(Vec(6, 234), module, Repeat::CLOCK_INPUT));
